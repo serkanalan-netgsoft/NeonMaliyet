@@ -1,0 +1,17 @@
+# Bağımlılıklar
+node_modules/
+
+# Build çıktısı
+dist/
+
+# Orijinal Excel kaynağı (depoya dahil edilmiyor)
+*.xlsx
+
+# Ortam & editör
+.env
+.env.*
+.DS_Store
+*.log
+
+# Geçici
+scratchpad/
