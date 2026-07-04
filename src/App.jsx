@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { useAyarlar } from './store.js';
 import NeonTabelaPage from './pages/NeonTabelaPage.jsx';
 import SonsuzlukPage from './pages/SonsuzlukPage.jsx';
@@ -19,9 +19,22 @@ export default function App() {
   const ayarlar = useAyarlar();
   const ortak = { prices: ayarlar.prices, constants: ayarlar.constants, rates: ayarlar.rates, materials: ayarlar.materials };
 
+  // Topbar yüksekliğini ölçüp CSS değişkenine yaz — sticky panel ofsetleri buna göre hizalanır
+  const topbarRef = useRef(null);
+  useLayoutEffect(() => {
+    const el = topbarRef.current;
+    if (!el) return;
+    const uygula = () => document.documentElement.style.setProperty('--topbar-h', el.offsetHeight + 'px');
+    uygula();
+    const ro = new ResizeObserver(uygula);
+    ro.observe(el);
+    window.addEventListener('resize', uygula);
+    return () => { ro.disconnect(); window.removeEventListener('resize', uygula); };
+  }, []);
+
   return (
     <div className="app">
-      <header className="topbar">
+      <header className="topbar" ref={topbarRef}>
         <div className="brand">
           <span className="logo">◈</span>
           <div>

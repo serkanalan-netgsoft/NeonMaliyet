@@ -14,16 +14,20 @@
 }
 
 * { box-sizing: border-box; }
-html, body, #root { height: 100%; }
+html { height: 100%; background: var(--bg); }
+body { min-height: 100%; }
+#root { min-height: 100vh; }
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: radial-gradient(1200px 700px at 80% -10%, #1a2140 0%, var(--bg) 55%);
+  background: var(--bg);
+  background-image: radial-gradient(1200px 700px at 80% -10%, #1a2140 0%, var(--bg) 55%);
+  background-attachment: fixed;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
 }
 
-.app { min-height: 100%; display: flex; flex-direction: column; }
+.app { min-height: 100vh; display: flex; flex-direction: column; }
 
 /* ---- Topbar ---- */
 .topbar {
@@ -55,7 +59,7 @@ body {
 .content { flex: 1; padding: 22px; max-width: 1400px; width: 100%; margin: 0 auto; }
 .calc { display: grid; grid-template-columns: 1fr 400px; gap: 22px; align-items: start; }
 .form { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-.output { position: sticky; top: 130px; }
+.output { position: sticky; top: calc(var(--topbar-h, 120px) + 12px); }
 
 @media (max-width: 950px) {
   .calc { grid-template-columns: 1fr; }
@@ -141,7 +145,7 @@ body {
 }
 .result-head h3 { margin: 0; font-size: 15px; }
 .muted { color: var(--muted); font-size: 12.5px; }
-.result-lines { padding: 8px 18px; max-height: 45vh; overflow-y: auto; }
+.result-lines { padding: 8px 18px; max-height: calc(100vh - var(--topbar-h, 120px) - 200px); overflow-y: auto; }
 .line {
   display: flex; justify-content: space-between; gap: 10px;
   padding: 7px 0; font-size: 13px; border-bottom: 1px dashed rgba(44,53,86,0.6);
@@ -187,12 +191,17 @@ body {
 /* ---- Ek Kalemler ---- */
 .section.full { grid-column: 1 / -1; }
 .ek-row {
-  display: grid; grid-template-columns: 90px minmax(160px, 2fr) 90px 14px 120px 110px 30px;
-  align-items: center; gap: 8px; margin-bottom: 7px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px;
+  padding-bottom: 8px; border-bottom: 1px dashed rgba(44,53,86,0.5);
 }
+.ek-tip { width: 84px; flex: 0 0 auto; }
+.ek-ad { flex: 1 1 150px; min-width: 120px; }
+.ek-miktar { width: 66px; flex: 0 0 auto; }
+.ek-birim-input { width: 92px; flex: 0 0 auto; }
+.ek-tutar { margin-left: auto; }
 .ek-row select, .ek-row input {
   background: var(--bg-2); border: 1px solid var(--line); color: var(--text);
-  border-radius: 7px; padding: 7px 8px; font-size: 12.5px; width: 100%; outline: none;
+  border-radius: 7px; padding: 7px 8px; font-size: 12.5px; outline: none;
 }
 .ek-row select:focus, .ek-row input:focus { border-color: var(--neon-2); }
 .ek-carpi { color: var(--muted); text-align: center; }
@@ -207,7 +216,11 @@ body {
 .ek-ekle:hover { background: rgba(34,227,195,0.16); }
 
 /* ---- Yeni malzeme formu ---- */
-.yeni-malzeme { display: grid; grid-template-columns: 1fr 110px 90px auto; gap: 8px; margin-bottom: 8px; }
+.yeni-malzeme { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.yeni-malzeme input:first-child { flex: 1 1 160px; min-width: 140px; }
+.yeni-malzeme input:nth-child(2) { flex: 0 1 110px; }
+.yeni-malzeme select { flex: 0 1 90px; }
+.btn-add { flex: 0 0 auto; }
 .yeni-malzeme input, .yeni-malzeme select {
   background: var(--bg-2); border: 1px solid var(--line); color: var(--text);
   border-radius: 8px; padding: 9px 11px; font-size: 13px; outline: none;
