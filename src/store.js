@@ -51,6 +51,11 @@ export function useAyarlar() {
     return merged;
   });
   const [constants, setConstants] = useState(() => deepMerge(defaultConstants, saved?.constants));
+  const [firma, setFirmaState] = useState(() => ({
+    ad: 'Firma Adınız', telefon: '', web: '',
+    not: 'Fiyata KDV dahildir. Teklif 7 gün geçerlidir.',
+    ...(saved?.firma || {}),
+  }));
 
   useEffect(() => {
     const matStore = {};
@@ -59,8 +64,9 @@ export function useAyarlar() {
         ? { base: v.base, cur: v.cur, ad: v.ad, grup: v.grup, ozel: true }
         : { base: v.base, cur: v.cur };
     }
-    localStorage.setItem(LS_KEY, JSON.stringify({ rates, materials: matStore, constants }));
-  }, [rates, materials, constants]);
+    localStorage.setItem(LS_KEY, JSON.stringify({ rates, materials: matStore, constants, firma }));
+  }, [rates, materials, constants, firma]);
+  const setFirma = useCallback((key, val) => setFirmaState((f) => ({ ...f, [key]: val })), []);
 
   const setRate = useCallback((key, val) => setRates((r) => ({ ...r, [key]: val })), []);
   const setMaterialBase = useCallback((key, base) =>
@@ -106,6 +112,7 @@ export function useAyarlar() {
   return {
     rates, setRate, materials, setMaterialBase, addMaterial, removeMaterial,
     prices, constants, setConstant, sifirla,
+    firma, setFirma,
     urunler, urunEkle, urunSil, urunGuncelle,
   };
 }

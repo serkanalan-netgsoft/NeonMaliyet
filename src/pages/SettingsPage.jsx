@@ -6,7 +6,7 @@ const CUR_LABEL = { USD: '$', EUR: '€', TL: '₺' };
 const getIn = (obj, path) => path.reduce((o, k) => (o == null ? undefined : o[k]), obj);
 
 export default function SettingsPage({ ayarlar }) {
-  const { rates, setRate, materials, setMaterialBase, addMaterial, removeMaterial, prices, constants, setConstant, sifirla } = ayarlar;
+  const { rates, setRate, materials, setMaterialBase, addMaterial, removeMaterial, prices, constants, setConstant, sifirla, firma, setFirma } = ayarlar;
   const [ara, setAra] = useState('');
   const [yeni, setYeni] = useState({ ad: '', base: '', cur: 'TL' });
 
@@ -36,6 +36,19 @@ export default function SettingsPage({ ayarlar }) {
         </div>
         <p className="hint">Bir malzemenin fiyatı: <b>baz fiyat × kur × KDV</b>. Kur değişince tüm ürünler otomatik güncellenir.</p>
         <button className="btn-reset" onClick={sifirla}>↺ Tüm Ayarları Varsayılana Döndür</button>
+      </Section>
+
+      <Section title="Firma Bilgileri (PDF teklif başlığı)">
+        <div className="firma-grid">
+          <label className="field"><span className="field-label">Firma Adı</span>
+            <span className="field-input"><input value={firma.ad} onChange={(e) => setFirma('ad', e.target.value)} /></span></label>
+          <label className="field"><span className="field-label">Telefon</span>
+            <span className="field-input"><input value={firma.telefon} onChange={(e) => setFirma('telefon', e.target.value)} placeholder="0555 000 00 00" /></span></label>
+          <label className="field"><span className="field-label">Web / Instagram</span>
+            <span className="field-input"><input value={firma.web} onChange={(e) => setFirma('web', e.target.value)} placeholder="@firma" /></span></label>
+          <label className="field"><span className="field-label">Teklif Notu</span>
+            <span className="field-input"><input value={firma.not} onChange={(e) => setFirma('not', e.target.value)} /></span></label>
+        </div>
       </Section>
 
       <Section title="Katsayılar & Sabit Değişkenler">

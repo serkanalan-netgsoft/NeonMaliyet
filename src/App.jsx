@@ -5,9 +5,11 @@ import SonsuzlukPage from './pages/SonsuzlukPage.jsx';
 import MasaPage from './pages/MasaPage.jsx';
 import AvizePage from './pages/AvizePage.jsx';
 import UrunlerPage from './pages/UrunlerPage.jsx';
+import TasarlaPage from './pages/TasarlaPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 
 const SEKMELER = [
+  { key: 'tasarla', ad: 'Neon Tasarla', ikon: '✨' },
   { key: 'tabela', ad: 'Neon Tabela', ikon: '🪧' },
   { key: 'sonsuzluk', ad: 'Sonsuzluk Aynası', ikon: '🪞' },
   { key: 'masa', ad: 'Neon Masa', ikon: '🟦' },
@@ -17,7 +19,7 @@ const SEKMELER = [
 ];
 
 export default function App() {
-  const [sekme, setSekme] = useState('tabela');
+  const [sekme, setSekme] = useState('tasarla');
   const [duzenlenen, setDuzenlenen] = useState(null); // hesaplayıcıda düzenlenen ürün
   const ayarlar = useAyarlar();
 
@@ -67,6 +69,7 @@ export default function App() {
       </header>
 
       <main className="content">
+        {sekme === 'tasarla' && <TasarlaPage prices={ayarlar.prices} constants={ayarlar.constants} rates={ayarlar.rates} firma={ayarlar.firma} urunEkle={ayarlar.urunEkle} />}
         {sekme === 'tabela' && <NeonTabelaPage {...pageProps('tabela')} />}
         {sekme === 'sonsuzluk' && <SonsuzlukPage {...pageProps('sonsuzluk')} />}
         {sekme === 'masa' && <MasaPage {...pageProps('masa')} />}

@@ -219,6 +219,10 @@ export const defaultConstants = {
   avizePaketEn:  0.1,  // C366
   avizePaketBoy: 0.1,  // C367
   avizePaketYuk: 0.1,  // C368
+  // --- Neon Tasarım Sihirbazı ---
+  tasarimYogunluk: 2.0,   // LED uzunluğu = metin genişliği(cm) × bu katsayı (yazı stiline göre kalibre edilir)
+  tasarimZeminPay: 0.05,  // Pleksi zemin için metnin her kenarına eklenen pay (m)
+  tasarimSatirAralik: 1.35, // satır yüksekliği çarpanı
 };
 
 // --- Ayarlar ekranında düzenlenebilir katsayılar (etiket + nesne yolu) ---
@@ -328,6 +332,11 @@ export const KATSAYI_META = [
     { path: ['avizeCap', 4], label: 'Çap — 120cm (m)' }, { path: ['avizeCap', 5], label: 'Çap — 130cm (m)' },
     { path: ['avizeCap', 6], label: 'Çap — 150cm (m)' }, { path: ['avizeCap', 7], label: 'Çap — 160cm (m)' },
     { path: ['avizeCap', 8], label: 'Çap — 190cm (m)' },
+  ]},
+  { grup: 'Neon Tasarım Sihirbazı', items: [
+    { path: ['tasarimYogunluk'], label: 'LED yoğunluk katsayısı (genişlik×kat)' },
+    { path: ['tasarimZeminPay'], label: 'Pleksi zemin kenar payı (m)' },
+    { path: ['tasarimSatirAralik'], label: 'Satır aralığı çarpanı' },
   ]},
   { grup: 'Yüzey / Ayna / Cam Payları (m)', items: [
     { path: ['aynaEnPay'], label: 'Ayna en payı' },        // C306
