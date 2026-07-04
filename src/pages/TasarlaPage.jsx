@@ -3,6 +3,7 @@ import { Section, Num, Radio, Select, fmt } from '../components/Controls.jsx';
 import { hesapla as tabelaHesapla } from '../engine/neonTabela.js';
 import { tasarimGirdi } from '../engine/neonTasarim.js';
 import { teklifPdf } from '../lib/pdf.js';
+import { PRESETLER, presetUret } from '../lib/arkaplanlar.js';
 import UruneDonustur from '../components/UruneDonustur.jsx';
 
 const FONTLAR = ['Neonderthaw', 'Pacifico', 'Dancing Script', 'Great Vibes', 'Sacramento', 'Satisfy', 'Kaushan Script', 'Monoton'];
@@ -36,6 +37,9 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle 
   const [modal, setModal] = useState(false);
   const canvasRef = useRef(null);
   const arkaImgRef = useRef(null);
+
+  // Hazır arka planları bir kez üret (küçük önizleme + tam görsel aynı dataURL)
+  const arkaplanlar = useMemo(() => PRESETLER.map((p) => ({ ...p, url: presetUret(p.key) })), []);
 
   const set = (patch) => setDesign((d) => ({ ...d, ...patch }));
 
@@ -184,12 +188,24 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle 
             <Radio label="Mekan" value={design.disMekan ? 1 : 0} onChange={(v) => set({ disMekan: !!v })}
               options={[{ value: 0, label: 'İç Mekan' }, { value: 1, label: 'Dış Mekan' }]} />
           </Section>
-          <Section title="Arka Plan Görseli (opsiyonel)">
+          <Section title="Arka Plan">
+            <div className="arka-grid">
+              <button className={`arka-btn ${!design.arkaGorsel ? 'active' : ''}`} onClick={() => set({ arkaGorsel: '' })}>
+                <span className="arka-yok">Koyu</span>
+              </button>
+              {arkaplanlar.map((a) => (
+                <button key={a.key} title={a.ad}
+                  className={`arka-btn ${design.arkaGorsel === a.url ? 'active' : ''}`}
+                  onClick={() => set({ arkaGorsel: a.url })}>
+                  <img src={a.url} alt={a.ad} />
+                  <em>{a.ad}</em>
+                </button>
+              ))}
+            </div>
             <label className="dosya-btn">
-              {design.arkaGorsel ? 'Görseli Değiştir' : '🖼️ Duvar/Ortam Fotoğrafı Yükle'}
+              🖼️ Kendi Fotoğrafını Yükle
               <input type="file" accept="image/*" hidden onChange={gorselSec} />
             </label>
-            {design.arkaGorsel && <button className="btn-reset" onClick={() => set({ arkaGorsel: '' })}>Kaldır</button>}
           </Section>
         </div>
       </div>
