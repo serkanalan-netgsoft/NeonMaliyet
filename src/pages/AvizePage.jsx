@@ -7,11 +7,13 @@ import {
 } from '../components/CommonFields.jsx';
 import Result from '../components/Result.jsx';
 import EkKalemler from '../components/EkKalemler.jsx';
+import UruneDonustur from '../components/UruneDonustur.jsx';
 import { birlestir } from '../engine/ekKalem.js';
 
-export default function AvizePage({ prices, constants, rates, materials }) {
+export default function AvizePage({ prices, constants, rates, materials, urunEkle }) {
   const [inp, setInp] = useState(defaultInputs);
   const [ekler, setEkler] = useState([]);
+  const [modal, setModal] = useState(false);
   const set = (patch) => setInp((p) => ({ ...p, ...patch }));
   const sonuc = birlestir(hesapla(inp, prices, constants, rates), ekler, prices, rates.karOrani);
 
@@ -39,7 +41,12 @@ export default function AvizePage({ prices, constants, rates, materials }) {
       </div>
       <div className="output">
         <Result sonuc={sonuc} karOrani={rates.karOrani} urunAdi="Neon Avize" />
+        <button className="urune-btn" onClick={() => setModal(true)}>★ Ürüne Dönüştür</button>
       </div>
+      {modal && (
+        <UruneDonustur urunTipi="avize" urunAdiVarsayilan="Neon Avize" inputs={inp} ekler={ekler}
+          sonuc={sonuc} rates={rates} onKaydet={urunEkle} onKapat={() => setModal(false)} />
+      )}
     </div>
   );
 }

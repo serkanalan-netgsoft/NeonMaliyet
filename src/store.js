@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { defaultRates, defaultMaterials, defaultConstants, computePrices } from './data/pricing.js';
 
 const LS_KEY = 'neonMaliyet.ayarlar.v2';
+const LS_URUN = 'neonMaliyet.urunler.v1';
 
 function loadSaved() {
   try {
@@ -84,7 +85,25 @@ export function useAyarlar() {
     setConstants(structuredClone(defaultConstants));
   }, []);
 
+  // --- Kayıtlı ürünler ---
+  const [urunler, setUrunler] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(LS_URUN)) || []; } catch { return []; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem(LS_URUN, JSON.stringify(urunler)); }
+    catch (e) { console.warn('Ürünler kaydedilemedi (localStorage dolu olabilir):', e); }
+  }, [urunler]);
+
+  const urunEkle = useCallback((urun) => {
+    setUrunler((u) => [{ ...urun, id: 'p_' + Date.now() }, ...u]);
+  }, []);
+  const urunSil = useCallback((id) => setUrunler((u) => u.filter((x) => x.id !== id)), []);
+
   const prices = computePrices(rates, materials);
 
-  return { rates, setRate, materials, setMaterialBase, addMaterial, removeMaterial, prices, constants, setConstant, sifirla };
+  return {
+    rates, setRate, materials, setMaterialBase, addMaterial, removeMaterial,
+    prices, constants, setConstant, sifirla,
+    urunler, urunEkle, urunSil,
+  };
 }

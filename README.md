@@ -23,6 +23,9 @@ npm run verify    # motoru Excel değerlerine karşı test et
 - **Ayarlar'da düzenlenebilir:** kurlar, KDV, kar oranı, tüm malzeme fiyatları ve tüm katsayılar
 - **Ek Maliyet Kalemleri:** her hesaba özel ekstra satır (ad + miktar × birim fiyat)
 - **Özel Malzeme tanımlama:** Ayarlar'dan yeni malzeme ekleyip ürünlerde seçme
+- **Ürüne Dönüştür & Ürünlerim:** hesabı ad/SKU/görsel/marj ile ürüne kaydet;
+  fiyatlar/kur değişince ürünün **güncel fiyatı** otomatik hesaplanır ve
+  kayıt anındaki fiyatla farkı (▲/▼ %) gösterilir. Ürüne özel marj verilebilir.
 - Değerler tarayıcıda (localStorage) saklanır
 
 ## Nasıl çalışır?

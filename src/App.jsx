@@ -4,6 +4,7 @@ import NeonTabelaPage from './pages/NeonTabelaPage.jsx';
 import SonsuzlukPage from './pages/SonsuzlukPage.jsx';
 import MasaPage from './pages/MasaPage.jsx';
 import AvizePage from './pages/AvizePage.jsx';
+import UrunlerPage from './pages/UrunlerPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 
 const SEKMELER = [
@@ -11,13 +12,14 @@ const SEKMELER = [
   { key: 'sonsuzluk', ad: 'Sonsuzluk Aynası', ikon: '🪞' },
   { key: 'masa', ad: 'Neon Masa', ikon: '🟦' },
   { key: 'avize', ad: 'Neon Avize', ikon: '💡' },
+  { key: 'urunler', ad: 'Ürünlerim', ikon: '📦' },
   { key: 'ayarlar', ad: 'Ayarlar', ikon: '⚙️' },
 ];
 
 export default function App() {
   const [sekme, setSekme] = useState('tabela');
   const ayarlar = useAyarlar();
-  const ortak = { prices: ayarlar.prices, constants: ayarlar.constants, rates: ayarlar.rates, materials: ayarlar.materials };
+  const ortak = { prices: ayarlar.prices, constants: ayarlar.constants, rates: ayarlar.rates, materials: ayarlar.materials, urunEkle: ayarlar.urunEkle };
 
   // Topbar yüksekliğini ölçüp CSS değişkenine yaz — sticky panel ofsetleri buna göre hizalanır
   const topbarRef = useRef(null);
@@ -56,6 +58,7 @@ export default function App() {
         {sekme === 'sonsuzluk' && <SonsuzlukPage {...ortak} />}
         {sekme === 'masa' && <MasaPage {...ortak} />}
         {sekme === 'avize' && <AvizePage {...ortak} />}
+        {sekme === 'urunler' && <UrunlerPage urunler={ayarlar.urunler} urunSil={ayarlar.urunSil} prices={ayarlar.prices} constants={ayarlar.constants} rates={ayarlar.rates} />}
         {sekme === 'ayarlar' && <SettingsPage ayarlar={ayarlar} />}
       </main>
 
