@@ -11,19 +11,30 @@ function bosYuzey() {
   return y;
 }
 
-// Pleksi (zemin) renk seçenekleri — her biri motordaki bir malzemeye eşlenir.
+// Pleksi (zemin) renk seçenekleri — base: motordaki yüzey türü (kalınlıkla birleşir)
 // renk: önizlemede yazının arkasına konan pleksi rengi ('transparent' = şeffaf)
 export const PLEKSI_SECENEK = [
-  { key: 'seffaf', mat: 'seffaf38', ad: 'Şeffaf', renk: 'transparent' },
-  { key: 'siyah', mat: 'siyah38', ad: 'Siyah', renk: '#141414' },
-  { key: 'beyaz', mat: 'beyaz38', ad: 'Beyaz', renk: '#ededed' },
-  { key: 'kirmizi', mat: 'renkli38', ad: 'Kırmızı', renk: '#c0392b' },
-  { key: 'mavi', mat: 'renkli38', ad: 'Mavi', renk: '#2c5fbf' },
-  { key: 'yesil', mat: 'renkli38', ad: 'Yeşil', renk: '#2e7d4f' },
-  { key: 'sari', mat: 'renkli38', ad: 'Sarı', renk: '#e0b020' },
-  { key: 'gumus', mat: 'gumusAyna', ad: 'Gümüş Ayna', renk: '#c2c6cf' },
+  { key: 'seffaf', base: 'seffaf', ad: 'Şeffaf', renk: 'transparent' },
+  { key: 'siyah', base: 'siyah', ad: 'Siyah', renk: '#141414' },
+  { key: 'beyaz', base: 'beyaz', ad: 'Beyaz', renk: '#ededed' },
+  { key: 'kirmizi', base: 'renkli', ad: 'Kırmızı', renk: '#c0392b' },
+  { key: 'mavi', base: 'renkli', ad: 'Mavi', renk: '#2c5fbf' },
+  { key: 'yesil', base: 'renkli', ad: 'Yeşil', renk: '#2e7d4f' },
+  { key: 'sari', base: 'renkli', ad: 'Sarı', renk: '#e0b020' },
+  { key: 'gumus', base: 'gumusAyna', ad: 'Gümüş Ayna', renk: '#c2c6cf' },
 ];
-const PLEKSI_MAT = Object.fromEntries(PLEKSI_SECENEK.map((p) => [p.key, p.mat]));
+export const KALINLIKLAR = [
+  { value: '38', label: '3.8mm' },
+  { value: '58', label: '5.8mm' },
+];
+
+// Renk + kalınlık → motordaki yüzey anahtarı (gümüş aynanın kalınlığı sabittir)
+export function pleksiYuzey(pleksiKey, kalinlik) {
+  const s = PLEKSI_SECENEK.find((p) => p.key === pleksiKey);
+  if (!s) return 'seffaf38';
+  if (s.base === 'gumusAyna') return 'gumusAyna';
+  return s.base + (kalinlik || '38');
+}
 
 // olcum: { satirGenislikleriCm, harfYuksekligiCm, yukseklikCm, harfSayisi }
 export function tasarimGirdi(design, olcum, C) {
@@ -54,7 +65,7 @@ export function tasarimGirdi(design, olcum, C) {
   const kAcik = design.kumandaVar;
 
   const yuzey = bosYuzey();
-  yuzey[PLEKSI_MAT[design.pleksi] || 'seffaf38'] = 1;
+  yuzey[pleksiYuzey(design.pleksi, design.pleksiKalinlik)] = 1;
 
   const inputs = {
     ...tabelaDefaults,

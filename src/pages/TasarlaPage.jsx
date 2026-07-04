@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Section, Num, Radio, Select, fmt } from '../components/Controls.jsx';
 import { hesapla as tabelaHesapla } from '../engine/neonTabela.js';
-import { tasarimGirdi, PLEKSI_SECENEK } from '../engine/neonTasarim.js';
+import { tasarimGirdi, PLEKSI_SECENEK, KALINLIKLAR } from '../engine/neonTasarim.js';
 import { birlestir } from '../engine/ekKalem.js';
 import { teklifPdf } from '../lib/pdf.js';
 import { PRESETLER, presetUrl } from '../lib/arkaplanlar.js';
@@ -19,6 +19,8 @@ const FONTLAR = [
 const RENKLER = ['#ff4d88', '#22e3c3', '#4d7cff', '#ffcf5c', '#ff6b3d', '#c04dff', '#ffffff', '#39ff14'];
 const PLEKSI_AD = Object.fromEntries(PLEKSI_SECENEK.map((p) => [p.key, p.ad]));
 const PLEKSI_RENK = Object.fromEntries(PLEKSI_SECENEK.map((p) => [p.key, p.renk]));
+const KALINLIK_AD = Object.fromEntries(KALINLIKLAR.map((k) => [k.value, k.label]));
+const pleksiEtiketi = (d) => d.pleksi === 'gumus' ? `${PLEKSI_AD.gumus} 1.8mm` : `${PLEKSI_AD[d.pleksi]} ${KALINLIK_AD[d.pleksiKalinlik] || '3.8mm'}`;
 const KESIMLER = [
   { value: 'sekilli', label: 'Şekilli Kesim' },
   { value: 'koseli', label: 'Köşeli Kesim' },
@@ -36,11 +38,11 @@ const ASKI_AD = Object.fromEntries(ASKILAR.map((a) => [a.value, a.label]));
 const REF = 200;
 
 // Fiyatı etkileyen tasarım alanları — bunlar değişince ince ayar (override) sıfırlanır
-const MALIYET_ALANLARI = ['metin', 'harfYuksekligiCm', 'ledTipi', 'pleksi', 'disMekan', 'ledCmManuel', 'kesim', 'aski', 'kumandaVar'];
+const MALIYET_ALANLARI = ['metin', 'harfYuksekligiCm', 'ledTipi', 'pleksi', 'pleksiKalinlik', 'disMekan', 'ledCmManuel', 'kesim', 'aski', 'kumandaVar'];
 
 export const VARSAYILAN_TASARIM = {
   metin: 'Merhaba', font: 'Great Vibes', ledTipi: 'tekRenk', neonRengi: '#ff4d88',
-  harfYuksekligiCm: 20, pleksi: 'seffaf', disMekan: false, arkaGorsel: '', ledCmManuel: '',
+  harfYuksekligiCm: 20, pleksi: 'seffaf', pleksiKalinlik: '38', disMekan: false, arkaGorsel: '', ledCmManuel: '',
   pozX: 0, pozY: 0, kesim: 'sekilli', aski: 'vida', kumandaVar: true, neonAcik: true,
 };
 
@@ -283,7 +285,7 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
       firma, design, yananCanvas: yanan, sonukCanvas: sonuk,
       ozet: {
         enCm, boyCm, ledCm,
-        zeminAd: PLEKSI_AD[design.pleksi], kesimAd: KESIM_AD[design.kesim], askiAd: ASKI_AD[design.aski],
+        zeminAd: pleksiEtiketi(design), kesimAd: KESIM_AD[design.kesim], askiAd: ASKI_AD[design.aski],
         kumanda: design.kumandaVar, satis: sonuc.satis,
       },
       tarihStr: new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }),
@@ -347,6 +349,9 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
               ))}
             </div>
             <p className="hint">Seçilen renkteki pleksi, önizlemede yazının arkasına konur (şekilli kesimde yazı şeklinde kesilir).</p>
+            {design.pleksi === 'gumus'
+              ? <p className="hint">Gümüş ayna pleksi 1.8mm (sabit).</p>
+              : <Radio label="Pleksi Kalınlığı" value={design.pleksiKalinlik} onChange={(v) => set({ pleksiKalinlik: v })} options={KALINLIKLAR} />}
             <Radio label="Kullanım Yeri" value={design.disMekan ? 1 : 0} onChange={(v) => set({ disMekan: !!v })}
               options={[{ value: 0, label: 'İç Mekan' }, { value: 1, label: 'Dış Mekan (Su Geçirmez)' }]} />
           </Section>
@@ -392,7 +397,7 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
             <div><span>Askı</span><b>{ASKI_AD[design.aski]}</b></div>
             <div><span>Kumanda</span><b>{design.kumandaVar ? 'Var' : 'Yok'}</b></div>
             <div><span>Mekan</span><b>{design.disMekan ? 'Dış Mekan' : 'İç Mekan'}</b></div>
-            <div><span>Pleksi</span><b>{PLEKSI_AD[design.pleksi]}</b></div>
+            <div><span>Pleksi</span><b>{pleksiEtiketi(design)}</b></div>
           </div>
           <div className="totals">
             <div className="total-row cost"><span>Maliyet</span><span>{fmt(sonuc.toplam)} ₺</span></div>
