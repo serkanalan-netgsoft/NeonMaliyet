@@ -11,6 +11,20 @@ function bosYuzey() {
   return y;
 }
 
+// Pleksi (zemin) renk seçenekleri — her biri motordaki bir malzemeye eşlenir.
+// renk: önizlemede yazının arkasına konan pleksi rengi ('transparent' = şeffaf)
+export const PLEKSI_SECENEK = [
+  { key: 'seffaf', mat: 'seffaf38', ad: 'Şeffaf', renk: 'transparent' },
+  { key: 'siyah', mat: 'siyah38', ad: 'Siyah', renk: '#141414' },
+  { key: 'beyaz', mat: 'beyaz38', ad: 'Beyaz', renk: '#ededed' },
+  { key: 'kirmizi', mat: 'renkli38', ad: 'Kırmızı', renk: '#c0392b' },
+  { key: 'mavi', mat: 'renkli38', ad: 'Mavi', renk: '#2c5fbf' },
+  { key: 'yesil', mat: 'renkli38', ad: 'Yeşil', renk: '#2e7d4f' },
+  { key: 'sari', mat: 'renkli38', ad: 'Sarı', renk: '#e0b020' },
+  { key: 'gumus', mat: 'gumusAyna', ad: 'Gümüş Ayna', renk: '#c2c6cf' },
+];
+const PLEKSI_MAT = Object.fromEntries(PLEKSI_SECENEK.map((p) => [p.key, p.mat]));
+
 // olcum: { satirGenislikleriCm, harfYuksekligiCm, yukseklikCm, harfSayisi }
 export function tasarimGirdi(design, olcum, C) {
   const genislikler = olcum.satirGenislikleriCm.length ? olcum.satirGenislikleriCm : [0];
@@ -40,7 +54,7 @@ export function tasarimGirdi(design, olcum, C) {
   const kAcik = design.kumandaVar;
 
   const yuzey = bosYuzey();
-  yuzey[design.pleksi] = 1;
+  yuzey[PLEKSI_MAT[design.pleksi] || 'seffaf38'] = 1;
 
   const inputs = {
     ...tabelaDefaults,

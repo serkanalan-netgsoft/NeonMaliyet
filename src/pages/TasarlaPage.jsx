@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Section, Num, Radio, Select, fmt } from '../components/Controls.jsx';
 import { hesapla as tabelaHesapla } from '../engine/neonTabela.js';
-import { tasarimGirdi } from '../engine/neonTasarim.js';
+import { tasarimGirdi, PLEKSI_SECENEK } from '../engine/neonTasarim.js';
 import { birlestir } from '../engine/ekKalem.js';
 import { teklifPdf } from '../lib/pdf.js';
 import { PRESETLER, presetUrl } from '../lib/arkaplanlar.js';
@@ -17,13 +17,8 @@ const FONTLAR = [
   'Bungee', 'Wire One', 'Poiret One', 'Syncopate', 'Orbitron', 'Gugi', 'Tulpen One', 'Julius Sans One',
 ];
 const RENKLER = ['#ff4d88', '#22e3c3', '#4d7cff', '#ffcf5c', '#ff6b3d', '#c04dff', '#ffffff', '#39ff14'];
-const ZEMINLER = [
-  { value: 'seffaf38', label: 'Şeffaf Pleksi 3.8mm' },
-  { value: 'siyah38', label: 'Siyah Pleksi 3.8mm' },
-  { value: 'beyaz38', label: 'Beyaz Pleksi 3.8mm' },
-  { value: 'seffaf58', label: 'Şeffaf Pleksi 5.8mm' },
-];
-const ZEMIN_AD = Object.fromEntries(ZEMINLER.map((z) => [z.value, z.label]));
+const PLEKSI_AD = Object.fromEntries(PLEKSI_SECENEK.map((p) => [p.key, p.ad]));
+const PLEKSI_RENK = Object.fromEntries(PLEKSI_SECENEK.map((p) => [p.key, p.renk]));
 const KESIMLER = [
   { value: 'sekilli', label: 'Şekilli Kesim' },
   { value: 'koseli', label: 'Köşeli Kesim' },
@@ -45,8 +40,8 @@ const MALIYET_ALANLARI = ['metin', 'harfYuksekligiCm', 'ledTipi', 'pleksi', 'dis
 
 export const VARSAYILAN_TASARIM = {
   metin: 'Merhaba', font: 'Great Vibes', ledTipi: 'tekRenk', neonRengi: '#ff4d88',
-  harfYuksekligiCm: 20, pleksi: 'seffaf38', disMekan: false, arkaGorsel: '', ledCmManuel: '',
-  pozX: 0, pozY: 0, kesim: 'sekilli', aski: 'vida', kumandaVar: true,
+  harfYuksekligiCm: 20, pleksi: 'seffaf', disMekan: false, arkaGorsel: '', ledCmManuel: '',
+  pozX: 0, pozY: 0, kesim: 'sekilli', aski: 'vida', kumandaVar: true, neonAcik: true,
 };
 
 function neonYaz(x, cx, cy, text, fontPx, font, renk) {
@@ -56,6 +51,50 @@ function neonYaz(x, cx, cy, text, fontPx, font, renk) {
   x.shadowColor = renk; x.fillStyle = renk;
   for (const b of [fontPx * 0.55, fontPx * 0.32, fontPx * 0.16]) { x.shadowBlur = b; x.fillText(text, cx, cy); }
   x.shadowBlur = fontPx * 0.06; x.fillStyle = '#ffffff'; x.fillText(text, cx, cy);
+  x.restore();
+}
+
+// Sönük (ışığı kapalı) neon tüp görünümü — parlama yok, buzlu tüp
+function sonukYaz(x, cx, cy, text, fontPx, font) {
+  x.font = `${fontPx}px "${font}", cursive`;
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.save(); x.shadowBlur = 0;
+  x.fillStyle = 'rgba(228,229,234,0.80)'; x.fillText(text, cx, cy);
+  x.lineWidth = Math.max(1, fontPx * 0.03); x.strokeStyle = 'rgba(90,92,105,0.55)'; x.strokeText(text, cx, cy);
+  x.restore();
+}
+
+function roundRectPath(x, rx, ry, w, h, r) {
+  x.beginPath();
+  x.moveTo(rx + r, ry); x.arcTo(rx + w, ry, rx + w, ry + h, r);
+  x.arcTo(rx + w, ry + h, rx, ry + h, r); x.arcTo(rx, ry + h, rx, ry, r); x.arcTo(rx, ry, rx + w, ry, r);
+  x.closePath();
+}
+
+// Yazının arkasına pleksi zemin (şekilli = yazı şeklinde, köşeli/kutu = plaka)
+function cizPleksi(x, cx, topY, lineH, n, fontPx, boxW, dizi, plexiRenk, kesim, font) {
+  const seffaf = plexiRenk === 'transparent';
+  x.save();
+  x.font = `${fontPx}px "${font}", cursive`;
+  x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineJoin = 'round'; x.lineCap = 'round';
+  if (kesim === 'sekilli' || kesim === 'masaustu') {
+    // Pleksi yazının şeklini takip eder
+    x.fillStyle = seffaf ? 'rgba(255,255,255,0.10)' : plexiRenk;
+    x.strokeStyle = seffaf ? 'rgba(255,255,255,0.10)' : plexiRenk;
+    x.lineWidth = fontPx * 0.5;
+    dizi.forEach((line, i) => { const yy = topY + lineH * (i + 0.5); x.strokeText(line, cx, yy); x.fillText(line, cx, yy); });
+    if (!seffaf) { x.strokeStyle = 'rgba(255,255,255,0.10)'; x.lineWidth = fontPx * 0.5; dizi.forEach((line, i) => x.strokeText(line, cx, topY + lineH * (i + 0.5))); }
+  } else {
+    // Köşeli / Kutu → dikdörtgen plaka
+    const pad = fontPx * 0.42;
+    const rx = cx - boxW / 2 - pad, ry = topY + lineH * 0.5 - fontPx * 0.62 - pad;
+    const rw = boxW + pad * 2, rh = lineH * (n - 1) + fontPx * 1.2 + pad * 2;
+    if (seffaf) { x.fillStyle = 'rgba(255,255,255,0.07)'; x.strokeStyle = 'rgba(255,255,255,0.22)'; }
+    else { x.fillStyle = plexiRenk; x.strokeStyle = 'rgba(255,255,255,0.16)'; }
+    x.lineWidth = 2;
+    roundRectPath(x, rx, ry, rw, rh, kesim === 'kutu' ? fontPx * 0.08 : fontPx * 0.18);
+    x.fill(); x.stroke();
+  }
   x.restore();
 }
 
@@ -133,12 +172,12 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
     });
   }, [design.metin, design.font, design.harfYuksekligiCm, fontHazir, constants.tasarimSatirAralik]);
 
-  // Çizim — ölçüm/renk/konum/arka plan değişince
-  useEffect(() => {
-    const c = canvasRef.current; if (!c) return;
+  // Önizleme/PDF çizimi — neonAcik: yanan/sönük; sabitW: PDF için sabit genişlik
+  const cizCanvas = (c, neonAcik, sabitW, olcuGoster = true) => {
+    if (!c) return;
     const dpr = 2;
-    const cssW = c.clientWidth || 640;
-    const W = Math.round(cssW * dpr), H = Math.round(W * 0.5);
+    const W = sabitW || Math.round((c.clientWidth || 640) * dpr);
+    const H = Math.round(W * 0.5);
     c.width = W; c.height = H;
     const x = c.getContext('2d');
 
@@ -146,10 +185,11 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
       const img = arkaImgRef.current, ir = img.width / img.height, cr = W / H;
       let dw, dh; if (ir > cr) { dh = H; dw = H * ir; } else { dw = W; dh = W / ir; }
       x.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
-      x.fillStyle = 'rgba(4,6,12,0.28)'; x.fillRect(0, 0, W, H);
+      x.fillStyle = neonAcik ? 'rgba(4,6,12,0.30)' : 'rgba(4,6,12,0.10)';
+      x.fillRect(0, 0, W, H);
     } else {
       const g = x.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) / 1.1);
-      g.addColorStop(0, '#1a2140'); g.addColorStop(1, '#07080f'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+      g.addColorStop(0, neonAcik ? '#1a2140' : '#23262f'); g.addColorStop(1, '#07080f'); x.fillStyle = g; x.fillRect(0, 0, W, H);
     }
 
     const lines = design.metin.split('\n').filter((l) => l.trim().length);
@@ -165,19 +205,35 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
 
     const cx = W / 2 + design.pozX * W;
     const topY = padY + design.pozY * H;
-    dizi.forEach((line, i) => neonYaz(x, cx, topY + lineH * (i + 0.5), line, fontPx, design.font, design.neonRengi));
+
+    // Yazının arkasına pleksi zemin
+    cizPleksi(x, cx, topY, lineH, n, fontPx, boxW, dizi, PLEKSI_RENK[design.pleksi] || 'transparent', design.kesim, design.font);
+
+    // Neon (yanan/sönük)
+    dizi.forEach((line, i) => {
+      const yy = topY + lineH * (i + 0.5);
+      if (neonAcik) neonYaz(x, cx, yy, line, fontPx, design.font, design.neonRengi);
+      else sonukYaz(x, cx, yy, line, fontPx, design.font);
+    });
 
     // Ölçü çizgileri
-    const boxLeft = cx - boxW / 2, boxRight = cx + boxW / 2;
-    const gTop = topY + lineH * 0.5 - fontPx * 0.6;
-    const gBot = topY + lineH * (n - 0.5) + fontPx * 0.35;
-    const enCm = Math.round(Math.max(0, ...olcum.satirGenislikleriCm));
-    const boyCm = Math.round(olcum.yukseklikCm || 0);
-    if (enCm > 0) {
-      olcuCiz(x, boxLeft - 26, gTop, boxLeft - 26, gBot, `${boyCm}cm`, true);
-      olcuCiz(x, boxLeft, gBot + 30, boxRight, gBot + 30, `${enCm}cm`, false);
+    if (olcuGoster) {
+      const boxLeft = cx - boxW / 2, boxRight = cx + boxW / 2;
+      const gTop = topY + lineH * 0.5 - fontPx * 0.6;
+      const gBot = topY + lineH * (n - 0.5) + fontPx * 0.35;
+      const enCm = Math.round(Math.max(0, ...olcum.satirGenislikleriCm));
+      const boyCm = Math.round(olcum.yukseklikCm || 0);
+      if (enCm > 0) {
+        olcuCiz(x, boxLeft - 26, gTop, boxLeft - 26, gBot, `${boyCm}cm`, true);
+        olcuCiz(x, boxLeft, gBot + 30, boxRight, gBot + 30, `${enCm}cm`, false);
+      }
     }
-  }, [olcum, design.metin, design.font, design.neonRengi, design.pozX, design.pozY, arkaTik, fontHazir]);
+  };
+
+  useEffect(() => {
+    cizCanvas(canvasRef.current, design.neonAcik);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [olcum, design.metin, design.font, design.neonRengi, design.pozX, design.pozY, design.pleksi, design.kesim, design.neonAcik, arkaTik, fontHazir]);
 
   // Sürükleme (yazıyı taşı)
   const onDown = (e) => {
@@ -222,15 +278,19 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
   const boyCm = Math.round((etkinInputs.boy || 0) * 100);
   const ledCm = (etkinInputs.ledPvc || 0) + (etkinInputs.ledRgb || 0) + (etkinInputs.ledFuji || 0) + (etkinInputs.ledNorm || 0) + (etkinInputs.ledPixel || 0);
 
-  const pdfYap = () => teklifPdf({
-    firma, design, previewCanvas: canvasRef.current,
-    ozet: {
-      enCm, boyCm, ledCm,
-      zeminAd: ZEMIN_AD[design.pleksi], kesimAd: KESIM_AD[design.kesim], askiAd: ASKI_AD[design.aski],
-      kumanda: design.kumandaVar, satis: sonuc.satis,
-    },
-    tarihStr: new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }),
-  });
+  const pdfYap = () => {
+    const yanan = document.createElement('canvas'); cizCanvas(yanan, true, 1200, false);
+    const sonuk = document.createElement('canvas'); cizCanvas(sonuk, false, 1200, false);
+    teklifPdf({
+      firma, design, yananCanvas: yanan, sonukCanvas: sonuk,
+      ozet: {
+        enCm, boyCm, ledCm,
+        zeminAd: PLEKSI_AD[design.pleksi], kesimAd: KESIM_AD[design.kesim], askiAd: ASKI_AD[design.aski],
+        kumanda: design.kumandaVar, satis: sonuc.satis,
+      },
+      tarihStr: new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }),
+    });
+  };
 
   return (
     <div className="tasarla">
@@ -239,6 +299,9 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
           <canvas ref={canvasRef} className="neon-canvas" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} />
           {!fontHazir && <span className="onizleme-not">Fontlar yükleniyor…</span>}
           <span className="onizleme-ipucu">✋ Yazıyı sürükleyerek taşıyabilirsiniz</span>
+          <button className={`isik-btn ${design.neonAcik ? 'acik' : ''}`} onClick={() => set({ neonAcik: !design.neonAcik })}>
+            {design.neonAcik ? '💡 Işık Açık' : '🌙 Işık Kapalı'}
+          </button>
         </div>
 
         <Section title="Yazı">
@@ -275,8 +338,17 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
             {design.kesim === 'kutu' && <p className="hint">Su geçirmez kutu — dış mekan için uygun (silikon yalıtım + kutu maliyeti eklenir).</p>}
             {design.kesim === 'masaustu' && <p className="hint">Kendinden destekli stand maliyeti eklenir.</p>}
           </Section>
-          <Section title="Arka Plan Rengi & Kullanım Yeri">
-            <Select label="Pleksi Zemin (Renk)" value={design.pleksi} onChange={(v) => set({ pleksi: v })} options={ZEMINLER} />
+          <Section title="Pleksi (Zemin) Rengi & Kullanım Yeri">
+            <span className="field-label">Pleksi Rengi</span>
+            <div className="renk-grid">
+              {PLEKSI_SECENEK.map((p) => (
+                <button key={p.key} title={p.ad}
+                  className={`renk-btn ${design.pleksi === p.key ? 'active' : ''} ${p.renk === 'transparent' ? 'seffaf' : ''}`}
+                  style={p.renk !== 'transparent' ? { background: p.renk } : undefined}
+                  onClick={() => set({ pleksi: p.key })} />
+              ))}
+            </div>
+            <p className="hint">Seçilen renkteki pleksi, önizlemede yazının arkasına konur (şekilli kesimde yazı şeklinde kesilir).</p>
             <Radio label="Kullanım Yeri" value={design.disMekan ? 1 : 0} onChange={(v) => set({ disMekan: !!v })}
               options={[{ value: 0, label: 'İç Mekan' }, { value: 1, label: 'Dış Mekan (Su Geçirmez)' }]} />
           </Section>
@@ -322,7 +394,7 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
             <div><span>Askı</span><b>{ASKI_AD[design.aski]}</b></div>
             <div><span>Kumanda</span><b>{design.kumandaVar ? 'Var' : 'Yok'}</b></div>
             <div><span>Mekan</span><b>{design.disMekan ? 'Dış Mekan' : 'İç Mekan'}</b></div>
-            <div><span>Zemin</span><b>{ZEMIN_AD[design.pleksi]}</b></div>
+            <div><span>Pleksi</span><b>{PLEKSI_AD[design.pleksi]}</b></div>
           </div>
           <div className="totals">
             <div className="total-row cost"><span>Maliyet</span><span>{fmt(sonuc.toplam)} ₺</span></div>

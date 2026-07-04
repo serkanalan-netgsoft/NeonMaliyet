@@ -13,7 +13,7 @@ function roundRect(x, rx, ry, w, h, r) {
   x.closePath();
 }
 
-export function teklifPdf({ firma, design, previewCanvas, ozet, tarihStr }) {
+export function teklifPdf({ firma, design, yananCanvas, sonukCanvas, ozet, tarihStr }) {
   const W = 1240, H = 1754;
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
@@ -33,19 +33,20 @@ export function teklifPdf({ firma, design, previewCanvas, ozet, tarihStr }) {
   x.fillStyle = '#8b93b0'; x.font = '22px Arial'; x.fillText(tarihStr, W - 60, 104);
   x.textAlign = 'left';
 
-  // Ürün görseli
-  const ix = 60, iy = 200, iw = W - 120, ih = 640;
-  x.fillStyle = '#0c0e16'; x.fillRect(ix, iy, iw, ih);
-  if (previewCanvas) {
-    const pr = previewCanvas.width / previewCanvas.height;
-    const br = iw / ih;
-    let dw, dh;
-    if (pr > br) { dw = iw; dh = iw / pr; } else { dh = ih; dw = ih * pr; }
-    x.drawImage(previewCanvas, ix + (iw - dw) / 2, iy + (ih - dh) / 2, dw, dh);
-  }
+  // Ürün görselleri (yanan + sönük yan yana)
+  const ix = 60, iy = 200, iw = W - 120;
+  const gap = 24, imw = (iw - gap) / 2, imh = imw / 2; // 2:1
+  const cizGorsel = (cv, gx, etiket) => {
+    x.fillStyle = '#0c0e16'; x.fillRect(gx, iy, imw, imh);
+    if (cv) x.drawImage(cv, gx, iy, imw, imh);
+    x.fillStyle = '#5b6072'; x.font = 'bold 24px Arial'; x.textAlign = 'center';
+    x.fillText(etiket, gx + imw / 2, iy + imh + 32); x.textAlign = 'left';
+  };
+  cizGorsel(yananCanvas, ix, 'Işık Açık (Yanan)');
+  cizGorsel(sonukCanvas, ix + imw + gap, 'Işık Kapalı (Sönük)');
 
   // Tasarım başlığı
-  let yy = iy + ih + 64;
+  let yy = iy + imh + 96;
   x.fillStyle = '#0c0e16'; x.font = 'bold 34px Arial';
   x.fillText('Tasarım: “' + (design.metin || '').replace(/\n/g, ' ') + '”', 60, yy);
   yy += 52;
