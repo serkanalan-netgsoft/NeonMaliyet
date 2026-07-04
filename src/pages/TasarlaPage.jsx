@@ -6,7 +6,15 @@ import { teklifPdf } from '../lib/pdf.js';
 import { PRESETLER, presetUret } from '../lib/arkaplanlar.js';
 import UruneDonustur from '../components/UruneDonustur.jsx';
 
-const FONTLAR = ['Neonderthaw', 'Pacifico', 'Dancing Script', 'Great Vibes', 'Sacramento', 'Satisfy', 'Kaushan Script', 'Monoton'];
+const FONTLAR = [
+  // El yazısı / script (neon için en popüler)
+  'Neonderthaw', 'Great Vibes', 'Alex Brush', 'Allura', 'Tangerine', 'Sacramento', 'Satisfy',
+  'Dancing Script', 'Pacifico', 'Cookie', 'Parisienne', 'Yellowtail', 'Kaushan Script', 'Marck Script',
+  'Norican', 'Clicker Script', 'Pinyon Script', 'Rouge Script', 'Sofia', 'Niconne', 'Monsieur La Doulaise', 'Mr Dafoe',
+  // Görsel / teknik (SignCustomiser ile birebir aynı ücretsiz fontlar)
+  'Monoton', 'Gruppo', 'Kodchasan', 'Meow Script', 'Megrim', 'Sue Ellen Francisco', 'Bungee Hairline',
+  'Bungee', 'Wire One', 'Poiret One', 'Syncopate', 'Orbitron', 'Gugi', 'Tulpen One', 'Julius Sans One',
+];
 const RENKLER = ['#ff4d88', '#22e3c3', '#4d7cff', '#ffcf5c', '#ff6b3d', '#c04dff', '#ffffff', '#39ff14'];
 const ZEMINLER = [
   { value: 'seffaf38', label: 'Şeffaf Pleksi 3.8mm' },
