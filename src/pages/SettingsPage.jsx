@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Section, Num, fmt } from '../components/Controls.jsx';
 import { KATSAYI_META } from '../data/pricing.js';
+import { guncelKur } from '../lib/kur.js';
 
 const CUR_LABEL = { USD: '$', EUR: '€', TL: '₺' };
 const getIn = (obj, path) => path.reduce((o, k) => (o == null ? undefined : o[k]), obj);
@@ -9,6 +10,19 @@ export default function SettingsPage({ ayarlar }) {
   const { rates, setRate, materials, setMaterialBase, addMaterial, removeMaterial, prices, constants, setConstant, sifirla, firma, setFirma } = ayarlar;
   const [ara, setAra] = useState('');
   const [yeni, setYeni] = useState({ ad: '', base: '', cur: 'TL' });
+  const [kurDurum, setKurDurum] = useState('');
+
+  const kurCek = async () => {
+    setKurDurum('yukleniyor');
+    try {
+      const k = await guncelKur();
+      setRate('usd', k.usd);
+      if (k.eur) setRate('eur', k.eur);
+      setKurDurum(`✓ Güncellendi — 1$=${k.usd}₺ · 1€=${k.eur ?? '-'}₺`);
+    } catch {
+      setKurDurum('⚠️ Kur alınamadı (internet bağlantısını kontrol edin)');
+    }
+  };
 
   const yeniEkle = () => {
     if (!yeni.ad.trim()) return;
@@ -35,6 +49,13 @@ export default function SettingsPage({ ayarlar }) {
           <Num label="Kar Oranı (Satış = Maliyet ×)" value={rates.karOrani} onChange={(v) => setRate('karOrani', v)} step={0.1} />
         </div>
         <p className="hint">Bir malzemenin fiyatı: <b>baz fiyat × kur × KDV</b>. Kur değişince tüm ürünler otomatik güncellenir.</p>
+        <div className="kur-cek">
+          <button className="btn-add" onClick={kurCek} disabled={kurDurum === 'yukleniyor'}>
+            {kurDurum === 'yukleniyor' ? 'Çekiliyor…' : '🔄 Güncel Kuru Çek'}
+          </button>
+          {kurDurum && kurDurum !== 'yukleniyor' && <span className="kur-durum">{kurDurum}</span>}
+        </div>
+        <p className="hint">Güncel piyasa kuru internetten çekilir. İsterseniz üstüne kendi payınızı (malzeme alım kuru) ekleyip düzenleyebilirsiniz.</p>
         <button className="btn-reset" onClick={sifirla}>↺ Tüm Ayarları Varsayılana Döndür</button>
       </Section>
 

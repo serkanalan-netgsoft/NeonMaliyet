@@ -175,6 +175,10 @@ body {
   color: var(--muted); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px;
 }
 .btn-reset:hover { color: var(--pink); border-color: var(--pink); }
+.kur-cek { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 6px 0; }
+.kur-cek .btn-add:disabled { opacity: 0.6; cursor: default; }
+.kur-durum { font-size: 12.5px; color: var(--neon); }
+.kur-durum:first-letter { font-size: 13px; }
 .search { margin-bottom: 6px; }
 .mat-group h4 { margin: 16px 0 8px; font-size: 13px; color: var(--neon-2); }
 .katsayi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
