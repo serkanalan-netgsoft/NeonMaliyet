@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Section, Num, Radio, Select, fmt } from '../components/Controls.jsx';
 import { hesapla as tabelaHesapla } from '../engine/neonTabela.js';
 import { tasarimGirdi } from '../engine/neonTasarim.js';
+import { birlestir } from '../engine/ekKalem.js';
 import { teklifPdf } from '../lib/pdf.js';
 import { PRESETLER, presetUrl } from '../lib/arkaplanlar.js';
 import UruneDonustur from '../components/UruneDonustur.jsx';
@@ -23,6 +24,20 @@ const ZEMINLER = [
   { value: 'seffaf58', label: 'Şeffaf Pleksi 5.8mm' },
 ];
 const ZEMIN_AD = Object.fromEntries(ZEMINLER.map((z) => [z.value, z.label]));
+const KESIMLER = [
+  { value: 'sekilli', label: 'Şekilli Kesim' },
+  { value: 'koseli', label: 'Köşeli Kesim' },
+  { value: 'kutu', label: 'Kutu (Su Geçirmez)' },
+  { value: 'masaustu', label: 'Masa Üstü Stand' },
+];
+const ASKILAR = [
+  { value: 'vida', label: 'Duvar Vidası' },
+  { value: 'tavan', label: 'Tavan Askı Kiti' },
+  { value: 'bant', label: 'Bant' },
+  { value: 'yukseltme', label: 'Yükseltme Vidası' },
+];
+const KESIM_AD = Object.fromEntries(KESIMLER.map((k) => [k.value, k.label]));
+const ASKI_AD = Object.fromEntries(ASKILAR.map((a) => [a.value, a.label]));
 const REF = 200;
 
 function neonYaz(x, cx, cy, text, fontPx, font, renk) {
@@ -58,6 +73,7 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle 
     metin: 'Merhaba', font: 'Great Vibes', ledTipi: 'tekRenk', neonRengi: '#ff4d88',
     harfYuksekligiCm: 20, pleksi: 'seffaf38', disMekan: false, arkaGorsel: '', ledCmManuel: '',
     pozX: 0, pozY: 0,
+    kesim: 'sekilli', aski: 'vida', kumandaVar: true,
   });
   const [olcum, setOlcum] = useState({ satirGenislikleriCm: [0], harfYuksekligiCm: 20, yukseklikCm: 20, harfSayisi: 0 });
   const [fontHazir, setFontHazir] = useState(false);
@@ -188,11 +204,18 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle 
   };
 
   const gir = useMemo(() => tasarimGirdi(design, olcum, constants), [design, olcum, constants]);
-  const sonuc = useMemo(() => tabelaHesapla(gir.inputs, prices, constants, rates), [gir, prices, constants, rates]);
+  const sonuc = useMemo(
+    () => birlestir(tabelaHesapla(gir.inputs, prices, constants, rates), gir.ekler, prices, rates.karOrani),
+    [gir, prices, constants, rates],
+  );
 
   const pdfYap = () => teklifPdf({
     firma, design, previewCanvas: canvasRef.current,
-    ozet: { enCm: Math.round(gir.enM * 100), boyCm: Math.round(gir.boyM * 100), ledCm: gir.ledCm, zeminAd: ZEMIN_AD[design.pleksi], satis: sonuc.satis },
+    ozet: {
+      enCm: Math.round(gir.enM * 100), boyCm: Math.round(gir.boyM * 100), ledCm: gir.ledCm,
+      zeminAd: ZEMIN_AD[design.pleksi], kesimAd: KESIM_AD[design.kesim], askiAd: ASKI_AD[design.aski],
+      kumanda: design.kumandaVar, satis: sonuc.satis,
+    },
     tarihStr: new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }),
   });
 
@@ -234,10 +257,22 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle 
             <p className="hint">Ölçülen: <b>{Math.round(Math.max(0, ...olcum.satirGenislikleriCm))} × {Math.round(olcum.yukseklikCm || 0)} cm</b> · Tahmini LED: <b>{gir.ledCmAuto} cm</b></p>
             <Num label="LED Uzunluğu (elle, opsiyonel)" value={design.ledCmManuel} onChange={(v) => set({ ledCmManuel: v })} suffix="cm" />
           </Section>
-          <Section title="Zemin & Mekan">
-            <Select label="Pleksi Zemin" value={design.pleksi} onChange={(v) => set({ pleksi: v })} options={ZEMINLER} />
-            <Radio label="Mekan" value={design.disMekan ? 1 : 0} onChange={(v) => set({ disMekan: !!v })}
-              options={[{ value: 0, label: 'İç Mekan' }, { value: 1, label: 'Dış Mekan' }]} />
+          <Section title="Arka Plan Kesimi">
+            <Radio value={design.kesim} onChange={(v) => set({ kesim: v })} options={KESIMLER} />
+            {design.kesim === 'kutu' && <p className="hint">Su geçirmez kutu — dış mekan için uygun (silikon yalıtım + kutu maliyeti eklenir).</p>}
+            {design.kesim === 'masaustu' && <p className="hint">Kendinden destekli stand maliyeti eklenir.</p>}
+          </Section>
+          <Section title="Arka Plan Rengi & Kullanım Yeri">
+            <Select label="Pleksi Zemin (Renk)" value={design.pleksi} onChange={(v) => set({ pleksi: v })} options={ZEMINLER} />
+            <Radio label="Kullanım Yeri" value={design.disMekan ? 1 : 0} onChange={(v) => set({ disMekan: !!v })}
+              options={[{ value: 0, label: 'İç Mekan' }, { value: 1, label: 'Dış Mekan (Su Geçirmez)' }]} />
+          </Section>
+          <Section title="Askı Seçeneği">
+            <Radio value={design.aski} onChange={(v) => set({ aski: v })} options={ASKILAR} />
+          </Section>
+          <Section title="Uzaktan Kumanda (Dimmer)">
+            <Radio value={design.kumandaVar ? 1 : 0} onChange={(v) => set({ kumandaVar: !!v })}
+              options={[{ value: 1, label: 'Evet' }, { value: 0, label: 'Hayır' }]} />
           </Section>
           <Section title="Arka Plan">
             <div className="arka-grid">
@@ -264,7 +299,10 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle 
             <div><span>Yazı</span><b>{design.metin.replace(/\n/g, ' / ') || '—'}</b></div>
             <div><span>Boyut</span><b>{Math.round(gir.enM * 100)} × {Math.round(gir.boyM * 100)} cm</b></div>
             <div><span>LED Uzunluğu</span><b>{gir.ledCm} cm</b></div>
-            <div><span>Harf Sayısı</span><b>{olcum.harfSayisi}</b></div>
+            <div><span>Kesim</span><b>{KESIM_AD[design.kesim]}</b></div>
+            <div><span>Askı</span><b>{ASKI_AD[design.aski]}</b></div>
+            <div><span>Kumanda</span><b>{design.kumandaVar ? 'Var' : 'Yok'}</b></div>
+            <div><span>Mekan</span><b>{design.disMekan ? 'Dış Mekan' : 'İç Mekan'}</b></div>
             <div><span>Zemin</span><b>{ZEMIN_AD[design.pleksi]}</b></div>
           </div>
           <div className="totals">
@@ -277,7 +315,7 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle 
       </div>
 
       {modal && (
-        <UruneDonustur urunTipi="tabela" urunAdiVarsayilan={design.metin} inputs={gir.inputs} ekler={[]}
+        <UruneDonustur urunTipi="tabela" urunAdiVarsayilan={design.metin} inputs={gir.inputs} ekler={gir.ekler}
           sonuc={sonuc} rates={rates} onKaydet={(p) => urunEkle(p)} onKapat={() => setModal(false)} />
       )}
     </div>

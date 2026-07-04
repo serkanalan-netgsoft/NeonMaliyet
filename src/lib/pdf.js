@@ -58,8 +58,11 @@ export function teklifPdf({ firma, design, previewCanvas, ozet, tarihStr }) {
     ['Boyut (En × Boy)', `${ozet.enCm} × ${ozet.boyCm} cm`],
     ['LED Uzunluğu', `${ozet.ledCm} cm`],
     ['Renk', design.ledTipi === 'rgb' ? 'RGB (çok renkli)' : 'Tek renk'],
-    ['Zemin', ozet.zeminAd],
-    ['Mekan', design.disMekan ? 'Dış mekan' : 'İç mekan'],
+    ['Arka Plan Kesimi', ozet.kesimAd || '-'],
+    ['Zemin Rengi', ozet.zeminAd],
+    ['Askı', ozet.askiAd || '-'],
+    ['Uzaktan Kumanda', ozet.kumanda ? 'Var' : 'Yok'],
+    ['Mekan', design.disMekan ? 'Dış mekan (su geçirmez)' : 'İç mekan'],
   ];
   for (const [k, v] of satirlar) {
     x.fillStyle = '#8b93b0'; x.fillText(k, 60, yy);
