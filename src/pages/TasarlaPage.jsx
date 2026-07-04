@@ -81,9 +81,9 @@ function cizPleksi(x, cx, topY, lineH, n, fontPx, boxW, dizi, plexiRenk, kesim, 
     // Pleksi yazının şeklini takip eder
     x.fillStyle = seffaf ? 'rgba(255,255,255,0.10)' : plexiRenk;
     x.strokeStyle = seffaf ? 'rgba(255,255,255,0.10)' : plexiRenk;
-    x.lineWidth = fontPx * 0.5;
+    x.lineWidth = fontPx * 0.3;
     dizi.forEach((line, i) => { const yy = topY + lineH * (i + 0.5); x.strokeText(line, cx, yy); x.fillText(line, cx, yy); });
-    if (!seffaf) { x.strokeStyle = 'rgba(255,255,255,0.10)'; x.lineWidth = fontPx * 0.5; dizi.forEach((line, i) => x.strokeText(line, cx, topY + lineH * (i + 0.5))); }
+    if (!seffaf) { x.strokeStyle = 'rgba(255,255,255,0.10)'; x.lineWidth = fontPx * 0.3; dizi.forEach((line, i) => x.strokeText(line, cx, topY + lineH * (i + 0.5))); }
   } else {
     // Köşeli / Kutu → dikdörtgen plaka
     const pad = fontPx * 0.42;
