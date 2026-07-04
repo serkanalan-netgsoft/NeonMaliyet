@@ -3,7 +3,7 @@ import { Section, Num, Radio, Select, fmt } from '../components/Controls.jsx';
 import { hesapla as tabelaHesapla } from '../engine/neonTabela.js';
 import { tasarimGirdi } from '../engine/neonTasarim.js';
 import { teklifPdf } from '../lib/pdf.js';
-import { PRESETLER, presetUret } from '../lib/arkaplanlar.js';
+import { PRESETLER, presetUrl } from '../lib/arkaplanlar.js';
 import UruneDonustur from '../components/UruneDonustur.jsx';
 
 const FONTLAR = [
@@ -47,7 +47,7 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle 
   const arkaImgRef = useRef(null);
 
   // Hazır arka planları bir kez üret (küçük önizleme + tam görsel aynı dataURL)
-  const arkaplanlar = useMemo(() => PRESETLER.map((p) => ({ ...p, url: presetUret(p.key) })), []);
+  const arkaplanlar = useMemo(() => PRESETLER.map((p) => ({ ...p, url: presetUrl(p) })), []);
 
   const set = (patch) => setDesign((d) => ({ ...d, ...patch }));
 

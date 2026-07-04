@@ -21,6 +21,7 @@ npm run verify    # motoru Excel değerlerine karşı test et
 - **Neon Tasarla sihirbazı:** yazı + font + renk + boyut + arka plan fotoğrafı ile
   canlı neon önizleme; yazıdan otomatik LED uzunluğu → **anlık fiyat** (maliyet motoru).
   Tek tıkla neon+arka plan görselli, teknik özellikli **PDF müşteri teklifi**.
+  37 font + gerçek mobilyalı iç mekan arka planları (salon, kafe, bar) + kendi fotoğrafını yükleme.
 - 4 ürün için maliyet & satış fiyatı hesabı (Excel'e karşı birebir doğrulanmış motor)
 - LED uzunluğundan otomatik amper → adaptör seçimi
 - **Ayarlar'da düzenlenebilir:** kurlar, KDV, kar oranı, tüm malzeme fiyatları ve tüm katsayılar
