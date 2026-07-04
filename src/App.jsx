@@ -5,7 +5,7 @@ import SonsuzlukPage from './pages/SonsuzlukPage.jsx';
 import MasaPage from './pages/MasaPage.jsx';
 import AvizePage from './pages/AvizePage.jsx';
 import UrunlerPage from './pages/UrunlerPage.jsx';
-import TasarlaPage from './pages/TasarlaPage.jsx';
+import TasarlaPage, { VARSAYILAN_TASARIM } from './pages/TasarlaPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 
 const SEKMELER = [
@@ -21,6 +21,8 @@ const SEKMELER = [
 export default function App() {
   const [sekme, setSekme] = useState('tasarla');
   const [duzenlenen, setDuzenlenen] = useState(null); // hesaplayıcıda düzenlenen ürün
+  const [tasarimDesign, setTasarimDesign] = useState(VARSAYILAN_TASARIM); // Neon Tasarla durumu (sekmeler arası korunur)
+  const [tasarimOverride, setTasarimOverride] = useState(null); // ince ayarlı girdiler
   const ayarlar = useAyarlar();
 
   // "Hesaplayıcıda Aç" → ürünü kendi hesaplayıcı sekmesine yükle
@@ -31,6 +33,12 @@ export default function App() {
     setDuzenlenen({ urunTipi: 'tabela', inputs, ekler: ekler || [], ad: 'Tasarım', kaynak: 'tasarim' });
     setSekme('tabela');
   };
+  // Neon Tabela ince ayar → Neon Tasarla'ya geri dön (ince ayarlı fiyatla PDF için)
+  const tasarimaDon = (inputs, ekler) => {
+    setTasarimOverride({ inputs, ekler: ekler || [] });
+    setDuzenlenen(null);
+    setSekme('tasarla');
+  };
   // Sekme değişince (kullanıcı elle başka sekmeye geçerse) düzenleme modunu bırak
   const sekmeSec = (k) => { if (k !== duzenlenen?.urunTipi) setDuzenlenen(null); setSekme(k); };
 
@@ -39,6 +47,7 @@ export default function App() {
     urunEkle: ayarlar.urunEkle, urunGuncelle: ayarlar.urunGuncelle,
     duzenlenen: duzenlenen?.urunTipi === tipKey ? duzenlenen : null,
     onDuzenlemeBitti: duzenlemeBitti,
+    onTasarimaDon: tasarimaDon,
   });
 
   // Topbar yüksekliğini ölçüp CSS değişkenine yaz — sticky panel ofsetleri buna göre hizalanır
@@ -74,7 +83,7 @@ export default function App() {
       </header>
 
       <main className="content">
-        {sekme === 'tasarla' && <TasarlaPage prices={ayarlar.prices} constants={ayarlar.constants} rates={ayarlar.rates} firma={ayarlar.firma} urunEkle={ayarlar.urunEkle} onInceAyar={tasarimiAktar} />}
+        {sekme === 'tasarla' && <TasarlaPage prices={ayarlar.prices} constants={ayarlar.constants} rates={ayarlar.rates} firma={ayarlar.firma} urunEkle={ayarlar.urunEkle} onInceAyar={tasarimiAktar} design={tasarimDesign} setDesign={setTasarimDesign} override={tasarimOverride} overrideTemizle={() => setTasarimOverride(null)} />}
         {sekme === 'tabela' && <NeonTabelaPage {...pageProps('tabela')} />}
         {sekme === 'sonsuzluk' && <SonsuzlukPage {...pageProps('sonsuzluk')} />}
         {sekme === 'masa' && <MasaPage {...pageProps('masa')} />}

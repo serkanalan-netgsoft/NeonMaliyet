@@ -40,6 +40,15 @@ const KESIM_AD = Object.fromEntries(KESIMLER.map((k) => [k.value, k.label]));
 const ASKI_AD = Object.fromEntries(ASKILAR.map((a) => [a.value, a.label]));
 const REF = 200;
 
+// Fiyatı etkileyen tasarım alanları — bunlar değişince ince ayar (override) sıfırlanır
+const MALIYET_ALANLARI = ['metin', 'harfYuksekligiCm', 'ledTipi', 'pleksi', 'disMekan', 'ledCmManuel', 'kesim', 'aski', 'kumandaVar'];
+
+export const VARSAYILAN_TASARIM = {
+  metin: 'Merhaba', font: 'Great Vibes', ledTipi: 'tekRenk', neonRengi: '#ff4d88',
+  harfYuksekligiCm: 20, pleksi: 'seffaf38', disMekan: false, arkaGorsel: '', ledCmManuel: '',
+  pozX: 0, pozY: 0, kesim: 'sekilli', aski: 'vida', kumandaVar: true,
+};
+
 function neonYaz(x, cx, cy, text, fontPx, font, renk) {
   x.font = `${fontPx}px "${font}", cursive`;
   x.textAlign = 'center'; x.textBaseline = 'middle';
@@ -68,13 +77,7 @@ function olcuCiz(x, x1, y1, x2, y2, label, dikey) {
   }
 }
 
-export default function TasarlaPage({ prices, constants, rates, firma, urunEkle, onInceAyar }) {
-  const [design, setDesign] = useState({
-    metin: 'Merhaba', font: 'Great Vibes', ledTipi: 'tekRenk', neonRengi: '#ff4d88',
-    harfYuksekligiCm: 20, pleksi: 'seffaf38', disMekan: false, arkaGorsel: '', ledCmManuel: '',
-    pozX: 0, pozY: 0,
-    kesim: 'sekilli', aski: 'vida', kumandaVar: true,
-  });
+export default function TasarlaPage({ prices, constants, rates, firma, urunEkle, onInceAyar, design, setDesign, override, overrideTemizle }) {
   const [olcum, setOlcum] = useState({ satirGenislikleriCm: [0], harfYuksekligiCm: 20, yukseklikCm: 20, harfSayisi: 0 });
   const [fontHazir, setFontHazir] = useState(false);
   const [arkaTik, setArkaTik] = useState(0);
@@ -84,7 +87,11 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
   const dragRef = useRef(null);
 
   const arkaplanlar = useMemo(() => PRESETLER.map((p) => ({ ...p, url: presetUrl(p) })), []);
-  const set = (patch) => setDesign((d) => ({ ...d, ...patch }));
+  // Fiyatı etkileyen bir alan değişince ince ayarı sıfırla
+  const set = (patch) => {
+    if (override && Object.keys(patch).some((k) => MALIYET_ALANLARI.includes(k))) overrideTemizle?.();
+    setDesign((d) => ({ ...d, ...patch }));
+  };
 
   useEffect(() => {
     let iptal = false;
@@ -204,15 +211,21 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
   };
 
   const gir = useMemo(() => tasarimGirdi(design, olcum, constants), [design, olcum, constants]);
+  // İnce ayar (override) aktifse onun girdilerini kullan; değilse sihirbazdan üretilen
+  const etkinInputs = override ? override.inputs : gir.inputs;
+  const etkinEkler = override ? override.ekler : gir.ekler;
   const sonuc = useMemo(
-    () => birlestir(tabelaHesapla(gir.inputs, prices, constants, rates), gir.ekler, prices, rates.karOrani),
-    [gir, prices, constants, rates],
+    () => birlestir(tabelaHesapla(etkinInputs, prices, constants, rates), etkinEkler, prices, rates.karOrani),
+    [etkinInputs, etkinEkler, prices, constants, rates],
   );
+  const enCm = Math.round((etkinInputs.en || 0) * 100);
+  const boyCm = Math.round((etkinInputs.boy || 0) * 100);
+  const ledCm = (etkinInputs.ledPvc || 0) + (etkinInputs.ledRgb || 0) + (etkinInputs.ledFuji || 0) + (etkinInputs.ledNorm || 0) + (etkinInputs.ledPixel || 0);
 
   const pdfYap = () => teklifPdf({
     firma, design, previewCanvas: canvasRef.current,
     ozet: {
-      enCm: Math.round(gir.enM * 100), boyCm: Math.round(gir.boyM * 100), ledCm: gir.ledCm,
+      enCm, boyCm, ledCm,
       zeminAd: ZEMIN_AD[design.pleksi], kesimAd: KESIM_AD[design.kesim], askiAd: ASKI_AD[design.aski],
       kumanda: design.kumandaVar, satis: sonuc.satis,
     },
@@ -293,12 +306,18 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
       </div>
 
       <div className="tasarla-sag">
+        {override && (
+          <div className="duzenle-banner">
+            <span>🔧 İnce ayarlı fiyat kullanılıyor</span>
+            <button onClick={() => overrideTemizle?.()}>Sıfırla</button>
+          </div>
+        )}
         <div className="result">
           <div className="result-head"><h3>Anlık Fiyat</h3><span className="muted">LED Neon Tabela</span></div>
           <div className="tasarla-ozet">
             <div><span>Yazı</span><b>{design.metin.replace(/\n/g, ' / ') || '—'}</b></div>
-            <div><span>Boyut</span><b>{Math.round(gir.enM * 100)} × {Math.round(gir.boyM * 100)} cm</b></div>
-            <div><span>LED Uzunluğu</span><b>{gir.ledCm} cm</b></div>
+            <div><span>Boyut</span><b>{enCm} × {boyCm} cm</b></div>
+            <div><span>LED Uzunluğu</span><b>{ledCm} cm</b></div>
             <div><span>Kesim</span><b>{KESIM_AD[design.kesim]}</b></div>
             <div><span>Askı</span><b>{ASKI_AD[design.aski]}</b></div>
             <div><span>Kumanda</span><b>{design.kumandaVar ? 'Var' : 'Yok'}</b></div>
@@ -312,12 +331,12 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
         </div>
         <button className="urune-btn" onClick={pdfYap}>📄 PDF Teklif Oluştur</button>
         <button className="urune-btn ikincil" onClick={() => setModal(true)}>★ Ürüne Dönüştür</button>
-        <button className="urune-btn ikincil" onClick={() => onInceAyar({ inputs: gir.inputs, ekler: gir.ekler })}>🔧 Neon Tabela'da İnce Ayar</button>
+        <button className="urune-btn ikincil" onClick={() => onInceAyar({ inputs: etkinInputs, ekler: etkinEkler })}>🔧 Neon Tabela'da İnce Ayar</button>
         <p className="hint">İnce ayar: Neon Tabela hesaplayıcısında tüm detayları (işçilik, kablo, montaj, yüzey vb.) elle düzenleyip fiyatı hassaslaştırabilirsiniz.</p>
       </div>
 
       {modal && (
-        <UruneDonustur urunTipi="tabela" urunAdiVarsayilan={design.metin} inputs={gir.inputs} ekler={gir.ekler}
+        <UruneDonustur urunTipi="tabela" urunAdiVarsayilan={design.metin} inputs={etkinInputs} ekler={etkinEkler}
           sonuc={sonuc} rates={rates} onKaydet={(p) => urunEkle(p)} onKapat={() => setModal(false)} />
       )}
     </div>

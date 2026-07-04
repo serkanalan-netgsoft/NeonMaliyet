@@ -10,7 +10,7 @@ import EkKalemler from '../components/EkKalemler.jsx';
 import UruneDonustur from '../components/UruneDonustur.jsx';
 import { birlestir } from '../engine/ekKalem.js';
 
-export default function NeonTabelaPage({ prices, constants, rates, materials, urunEkle, urunGuncelle, duzenlenen, onDuzenlemeBitti }) {
+export default function NeonTabelaPage({ prices, constants, rates, materials, urunEkle, urunGuncelle, duzenlenen, onDuzenlemeBitti, onTasarimaDon }) {
   const [inp, setInp] = useState(duzenlenen?.inputs || defaultInputs);
   const [ekler, setEkler] = useState(duzenlenen?.ekler || []);
   const [modal, setModal] = useState(false);
@@ -58,6 +58,9 @@ export default function NeonTabelaPage({ prices, constants, rates, materials, ur
       <div className="output">
         <Result sonuc={sonuc} karOrani={rates.karOrani} urunAdi="Neon Tabela" />
         <button className="urune-btn" onClick={() => setModal(true)}>{kayitli ? '★ Değişiklikleri Kaydet' : '★ Ürüne Dönüştür'}</button>
+        {duzenlenen?.kaynak === 'tasarim' && (
+          <button className="urune-btn ikincil" onClick={() => onTasarimaDon(inp, ekler)}>🎨 Tasarıma Dön (İnce Ayarlı Fiyatla)</button>
+        )}
       </div>
       {modal && (
         <UruneDonustur urunTipi="tabela" urunAdiVarsayilan="Neon Tabela" inputs={inp} ekler={ekler}
