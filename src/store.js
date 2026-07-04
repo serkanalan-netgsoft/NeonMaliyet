@@ -98,12 +98,14 @@ export function useAyarlar() {
     setUrunler((u) => [{ ...urun, id: 'p_' + Date.now() }, ...u]);
   }, []);
   const urunSil = useCallback((id) => setUrunler((u) => u.filter((x) => x.id !== id)), []);
+  const urunGuncelle = useCallback((id, patch) =>
+    setUrunler((u) => u.map((x) => (x.id === id ? { ...x, ...patch } : x))), []);
 
   const prices = computePrices(rates, materials);
 
   return {
     rates, setRate, materials, setMaterialBase, addMaterial, removeMaterial,
     prices, constants, setConstant, sifirla,
-    urunler, urunEkle, urunSil,
+    urunler, urunEkle, urunSil, urunGuncelle,
   };
 }

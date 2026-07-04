@@ -24,12 +24,13 @@ function gorselKucult(file, maxDim = 400) {
   });
 }
 
-export default function UruneDonustur({ urunTipi, urunAdiVarsayilan, inputs, ekler, sonuc, rates, onKaydet, onKapat }) {
-  const [ad, setAd] = useState('');
-  const [sku, setSku] = useState('');
-  const [gorsel, setGorsel] = useState('');
-  const [marjTipi, setMarjTipi] = useState('genel');       // genel | ozel
-  const [ozelMarj, setOzelMarj] = useState(rates.karOrani);
+export default function UruneDonustur({ urunTipi, urunAdiVarsayilan, inputs, ekler, sonuc, rates, mevcut, onKaydet, onKapat }) {
+  const duzenle = !!mevcut;
+  const [ad, setAd] = useState(mevcut?.ad || '');
+  const [sku, setSku] = useState(mevcut?.sku || '');
+  const [gorsel, setGorsel] = useState(mevcut?.gorsel || '');
+  const [marjTipi, setMarjTipi] = useState(mevcut?.marjTipi || 'genel');       // genel | ozel
+  const [ozelMarj, setOzelMarj] = useState(mevcut?.ozelMarj || rates.karOrani);
   const [yukleniyor, setYukleniyor] = useState(false);
   const fileRef = useRef(null);
 
@@ -46,14 +47,15 @@ export default function UruneDonustur({ urunTipi, urunAdiVarsayilan, inputs, ekl
 
   const kaydet = () => {
     if (!ad.trim()) { alert('Lütfen ürün adı girin.'); return; }
-    onKaydet({
+    const base = {
       urunTipi, ad: ad.trim(), sku: sku.trim(), gorsel,
-      inputs, ekler,
-      marjTipi, ozelMarj: Number(ozelMarj) || rates.karOrani,
-      olusturmaTarihi: Date.now(),
-      olusturmaMaliyet: sonuc.toplam,
-      olusturmaFiyat: satis,
-    });
+      inputs, ekler, marjTipi, ozelMarj: Number(ozelMarj) || rates.karOrani,
+    };
+    if (duzenle) {
+      onKaydet({ ...base, guncellemeTarihi: Date.now() });
+    } else {
+      onKaydet({ ...base, olusturmaTarihi: Date.now(), olusturmaMaliyet: sonuc.toplam, olusturmaFiyat: satis });
+    }
     onKapat();
   };
 
@@ -61,7 +63,7 @@ export default function UruneDonustur({ urunTipi, urunAdiVarsayilan, inputs, ekl
     <div className="modal-arka" onClick={onKapat}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-bas">
-          <h3>Ürüne Dönüştür</h3>
+          <h3>{duzenle ? 'Ürünü Düzenle' : 'Ürüne Dönüştür'}</h3>
           <button className="modal-kapat" onClick={onKapat}>✕</button>
         </div>
 
@@ -102,7 +104,7 @@ export default function UruneDonustur({ urunTipi, urunAdiVarsayilan, inputs, ekl
 
         <div className="modal-alt">
           <button className="btn-iptal" onClick={onKapat}>İptal</button>
-          <button className="btn-kaydet" onClick={kaydet}>★ Ürünü Kaydet</button>
+          <button className="btn-kaydet" onClick={kaydet}>{duzenle ? 'Güncelle' : '★ Ürünü Kaydet'}</button>
         </div>
       </div>
     </div>

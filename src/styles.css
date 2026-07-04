@@ -281,6 +281,30 @@ body {
 .btn-kaydet:hover { filter: brightness(1.08); }
 
 /* ---- Ürünler sayfası ---- */
+.urun-arac { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.urun-arac .search { flex: 1 1 240px; margin: 0; }
+.urun-arac select { background: var(--bg-2); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 9px 11px; font-size: 13px; outline: none; }
+.urun-filtre { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.urun-sayi { margin: 4px 0 14px; }
+.urun-islem { display: flex; gap: 8px; margin-top: 8px; }
+.urun-islem button {
+  flex: 1; background: var(--bg-2); border: 1px solid var(--line); color: var(--muted);
+  padding: 8px; border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 600;
+}
+.urun-islem button:hover { color: var(--neon); border-color: var(--neon); }
+
+/* ---- Düzenleme afişi (hesaplayıcı) ---- */
+.duzenle-banner {
+  grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: rgba(255,207,92,0.1); border: 1px solid rgba(255,207,92,0.4); color: var(--gold);
+  border-radius: 10px; padding: 10px 14px; font-size: 13.5px;
+}
+.duzenle-banner button {
+  background: transparent; border: 1px solid rgba(255,207,92,0.5); color: var(--gold);
+  padding: 5px 12px; border-radius: 7px; cursor: pointer; font-weight: 600; font-size: 12.5px;
+}
+.duzenle-banner button:hover { background: rgba(255,207,92,0.15); }
+
 .urun-bos { max-width: 520px; margin: 40px auto; text-align: center; }
 .urun-bos p { margin: 6px 0; }
 .urun-liste { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }

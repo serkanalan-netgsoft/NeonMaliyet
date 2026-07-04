@@ -26,6 +26,8 @@ npm run verify    # motoru Excel değerlerine karşı test et
 - **Ürüne Dönüştür & Ürünlerim:** hesabı ad/SKU/görsel/marj ile ürüne kaydet;
   fiyatlar/kur değişince ürünün **güncel fiyatı** otomatik hesaplanır ve
   kayıt anındaki fiyatla farkı (▲/▼ %) gösterilir. Ürüne özel marj verilebilir.
+- **Ürün yönetimi:** arama (ad/SKU), tipe göre filtre, sıralama; kart üzerinden
+  düzenleme (ad/SKU/görsel/marj) ve "Hesaplayıcıda Aç" ile ölçü/seçim düzenleme.
 - Değerler tarayıcıda (localStorage) saklanır
 
 ## Nasıl çalışır?

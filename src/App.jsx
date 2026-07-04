@@ -18,8 +18,21 @@ const SEKMELER = [
 
 export default function App() {
   const [sekme, setSekme] = useState('tabela');
+  const [duzenlenen, setDuzenlenen] = useState(null); // hesaplayıcıda düzenlenen ürün
   const ayarlar = useAyarlar();
-  const ortak = { prices: ayarlar.prices, constants: ayarlar.constants, rates: ayarlar.rates, materials: ayarlar.materials, urunEkle: ayarlar.urunEkle };
+
+  // "Hesaplayıcıda Aç" → ürünü kendi hesaplayıcı sekmesine yükle
+  const onDuzenle = (urun) => { setDuzenlenen(urun); setSekme(urun.urunTipi); };
+  const duzenlemeBitti = () => setDuzenlenen(null);
+  // Sekme değişince (kullanıcı elle başka sekmeye geçerse) düzenleme modunu bırak
+  const sekmeSec = (k) => { if (k !== duzenlenen?.urunTipi) setDuzenlenen(null); setSekme(k); };
+
+  const pageProps = (tipKey) => ({
+    prices: ayarlar.prices, constants: ayarlar.constants, rates: ayarlar.rates, materials: ayarlar.materials,
+    urunEkle: ayarlar.urunEkle, urunGuncelle: ayarlar.urunGuncelle,
+    duzenlenen: duzenlenen?.urunTipi === tipKey ? duzenlenen : null,
+    onDuzenlemeBitti: duzenlemeBitti,
+  });
 
   // Topbar yüksekliğini ölçüp CSS değişkenine yaz — sticky panel ofsetleri buna göre hizalanır
   const topbarRef = useRef(null);
@@ -46,7 +59,7 @@ export default function App() {
         </div>
         <nav className="tabs">
           {SEKMELER.map((s) => (
-            <button key={s.key} className={`tab ${sekme === s.key ? 'active' : ''}`} onClick={() => setSekme(s.key)}>
+            <button key={s.key} className={`tab ${sekme === s.key ? 'active' : ''}`} onClick={() => sekmeSec(s.key)}>
               <span className="tab-ikon">{s.ikon}</span>{s.ad}
             </button>
           ))}
@@ -54,11 +67,11 @@ export default function App() {
       </header>
 
       <main className="content">
-        {sekme === 'tabela' && <NeonTabelaPage {...ortak} />}
-        {sekme === 'sonsuzluk' && <SonsuzlukPage {...ortak} />}
-        {sekme === 'masa' && <MasaPage {...ortak} />}
-        {sekme === 'avize' && <AvizePage {...ortak} />}
-        {sekme === 'urunler' && <UrunlerPage urunler={ayarlar.urunler} urunSil={ayarlar.urunSil} prices={ayarlar.prices} constants={ayarlar.constants} rates={ayarlar.rates} />}
+        {sekme === 'tabela' && <NeonTabelaPage {...pageProps('tabela')} />}
+        {sekme === 'sonsuzluk' && <SonsuzlukPage {...pageProps('sonsuzluk')} />}
+        {sekme === 'masa' && <MasaPage {...pageProps('masa')} />}
+        {sekme === 'avize' && <AvizePage {...pageProps('avize')} />}
+        {sekme === 'urunler' && <UrunlerPage urunler={ayarlar.urunler} urunSil={ayarlar.urunSil} urunGuncelle={ayarlar.urunGuncelle} onDuzenle={onDuzenle} prices={ayarlar.prices} constants={ayarlar.constants} rates={ayarlar.rates} />}
         {sekme === 'ayarlar' && <SettingsPage ayarlar={ayarlar} />}
       </main>
 
