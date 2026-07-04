@@ -26,6 +26,11 @@ export default function App() {
   // "Hesaplayıcıda Aç" → ürünü kendi hesaplayıcı sekmesine yükle
   const onDuzenle = (urun) => { setDuzenlenen(urun); setSekme(urun.urunTipi); };
   const duzenlemeBitti = () => setDuzenlenen(null);
+  // Neon Tasarla → Neon Tabela hesaplayıcısına aktar (ince ayar için; kayıtlı ürün değil)
+  const tasarimiAktar = ({ inputs, ekler }) => {
+    setDuzenlenen({ urunTipi: 'tabela', inputs, ekler: ekler || [], ad: 'Tasarım', kaynak: 'tasarim' });
+    setSekme('tabela');
+  };
   // Sekme değişince (kullanıcı elle başka sekmeye geçerse) düzenleme modunu bırak
   const sekmeSec = (k) => { if (k !== duzenlenen?.urunTipi) setDuzenlenen(null); setSekme(k); };
 
@@ -69,7 +74,7 @@ export default function App() {
       </header>
 
       <main className="content">
-        {sekme === 'tasarla' && <TasarlaPage prices={ayarlar.prices} constants={ayarlar.constants} rates={ayarlar.rates} firma={ayarlar.firma} urunEkle={ayarlar.urunEkle} />}
+        {sekme === 'tasarla' && <TasarlaPage prices={ayarlar.prices} constants={ayarlar.constants} rates={ayarlar.rates} firma={ayarlar.firma} urunEkle={ayarlar.urunEkle} onInceAyar={tasarimiAktar} />}
         {sekme === 'tabela' && <NeonTabelaPage {...pageProps('tabela')} />}
         {sekme === 'sonsuzluk' && <SonsuzlukPage {...pageProps('sonsuzluk')} />}
         {sekme === 'masa' && <MasaPage {...pageProps('masa')} />}

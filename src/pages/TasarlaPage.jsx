@@ -68,7 +68,7 @@ function olcuCiz(x, x1, y1, x2, y2, label, dikey) {
   }
 }
 
-export default function TasarlaPage({ prices, constants, rates, firma, urunEkle }) {
+export default function TasarlaPage({ prices, constants, rates, firma, urunEkle, onInceAyar }) {
   const [design, setDesign] = useState({
     metin: 'Merhaba', font: 'Great Vibes', ledTipi: 'tekRenk', neonRengi: '#ff4d88',
     harfYuksekligiCm: 20, pleksi: 'seffaf38', disMekan: false, arkaGorsel: '', ledCmManuel: '',
@@ -312,6 +312,8 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle 
         </div>
         <button className="urune-btn" onClick={pdfYap}>📄 PDF Teklif Oluştur</button>
         <button className="urune-btn ikincil" onClick={() => setModal(true)}>★ Ürüne Dönüştür</button>
+        <button className="urune-btn ikincil" onClick={() => onInceAyar({ inputs: gir.inputs, ekler: gir.ekler })}>🔧 Neon Tabela'da İnce Ayar</button>
+        <p className="hint">İnce ayar: Neon Tabela hesaplayıcısında tüm detayları (işçilik, kablo, montaj, yüzey vb.) elle düzenleyip fiyatı hassaslaştırabilirsiniz.</p>
       </div>
 
       {modal && (

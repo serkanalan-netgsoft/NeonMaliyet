@@ -15,6 +15,7 @@ export default function NeonTabelaPage({ prices, constants, rates, materials, ur
   const [ekler, setEkler] = useState(duzenlenen?.ekler || []);
   const [modal, setModal] = useState(false);
   useEffect(() => { if (duzenlenen) { setInp(duzenlenen.inputs); setEkler(duzenlenen.ekler || []); } }, [duzenlenen]);
+  const kayitli = !!(duzenlenen && duzenlenen.id); // kayıtlı ürün mü, yoksa tasarımdan aktarma mı
   const set = (patch) => setInp((p) => ({ ...p, ...patch }));
   const sonuc = birlestir(hesapla(inp, prices, constants, rates), ekler, prices, rates.karOrani);
 
@@ -23,8 +24,8 @@ export default function NeonTabelaPage({ prices, constants, rates, materials, ur
       <div className="form">
         {duzenlenen && (
           <div className="duzenle-banner">
-            <span>📝 <b>{duzenlenen.ad}</b> düzenleniyor</span>
-            <button onClick={onDuzenlemeBitti}>Vazgeç</button>
+            <span>{kayitli ? <>📝 <b>{duzenlenen.ad}</b> düzenleniyor</> : <>🔧 Tasarımdan aktarıldı — ince ayar yapıp kaydedebilirsiniz</>}</span>
+            <button onClick={onDuzenlemeBitti}>{kayitli ? 'Vazgeç' : 'Kapat'}</button>
           </div>
         )}
         <Section title="Ürün Tipi">
@@ -56,12 +57,12 @@ export default function NeonTabelaPage({ prices, constants, rates, materials, ur
       </div>
       <div className="output">
         <Result sonuc={sonuc} karOrani={rates.karOrani} urunAdi="Neon Tabela" />
-        <button className="urune-btn" onClick={() => setModal(true)}>{duzenlenen ? '★ Değişiklikleri Kaydet' : '★ Ürüne Dönüştür'}</button>
+        <button className="urune-btn" onClick={() => setModal(true)}>{kayitli ? '★ Değişiklikleri Kaydet' : '★ Ürüne Dönüştür'}</button>
       </div>
       {modal && (
         <UruneDonustur urunTipi="tabela" urunAdiVarsayilan="Neon Tabela" inputs={inp} ekler={ekler}
-          sonuc={sonuc} rates={rates} mevcut={duzenlenen}
-          onKaydet={(p) => { if (duzenlenen) { urunGuncelle(duzenlenen.id, p); onDuzenlemeBitti(); } else { urunEkle(p); } }}
+          sonuc={sonuc} rates={rates} mevcut={kayitli ? duzenlenen : null}
+          onKaydet={(p) => { if (kayitli) { urunGuncelle(duzenlenen.id, p); onDuzenlemeBitti(); } else { urunEkle(p); } }}
           onKapat={() => setModal(false)} />
       )}
     </div>
