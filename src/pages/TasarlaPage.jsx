@@ -78,22 +78,20 @@ function cizPleksi(x, cx, topY, lineH, n, fontPx, boxW, dizi, plexiRenk, kesim, 
   x.font = `${fontPx}px "${font}", cursive`;
   x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineJoin = 'round'; x.lineCap = 'round';
   if (kesim === 'sekilli' || kesim === 'masaustu') {
-    // Pleksi yazının şeklini takip eder
-    x.fillStyle = seffaf ? 'rgba(255,255,255,0.10)' : plexiRenk;
-    x.strokeStyle = seffaf ? 'rgba(255,255,255,0.10)' : plexiRenk;
+    // Pleksi yazının şeklini takip eder — renkli pleksi tam opak
+    x.fillStyle = seffaf ? 'rgba(255,255,255,0.12)' : plexiRenk;
+    x.strokeStyle = seffaf ? 'rgba(255,255,255,0.12)' : plexiRenk;
     x.lineWidth = fontPx * 0.3;
     dizi.forEach((line, i) => { const yy = topY + lineH * (i + 0.5); x.strokeText(line, cx, yy); x.fillText(line, cx, yy); });
-    if (!seffaf) { x.strokeStyle = 'rgba(255,255,255,0.10)'; x.lineWidth = fontPx * 0.3; dizi.forEach((line, i) => x.strokeText(line, cx, topY + lineH * (i + 0.5))); }
   } else {
     // Köşeli / Kutu → dikdörtgen plaka
     const pad = fontPx * 0.42;
     const rx = cx - boxW / 2 - pad, ry = topY + lineH * 0.5 - fontPx * 0.62 - pad;
     const rw = boxW + pad * 2, rh = lineH * (n - 1) + fontPx * 1.2 + pad * 2;
-    if (seffaf) { x.fillStyle = 'rgba(255,255,255,0.07)'; x.strokeStyle = 'rgba(255,255,255,0.22)'; }
-    else { x.fillStyle = plexiRenk; x.strokeStyle = 'rgba(255,255,255,0.16)'; }
-    x.lineWidth = 2;
     roundRectPath(x, rx, ry, rw, rh, kesim === 'kutu' ? fontPx * 0.08 : fontPx * 0.18);
-    x.fill(); x.stroke();
+    x.fillStyle = seffaf ? 'rgba(255,255,255,0.10)' : plexiRenk; // renkli = tam opak
+    x.fill();
+    if (seffaf) { x.strokeStyle = 'rgba(255,255,255,0.22)'; x.lineWidth = 2; x.stroke(); }
   }
   x.restore();
 }
@@ -195,12 +193,12 @@ export default function TasarlaPage({ prices, constants, rates, firma, urunEkle,
     const lines = design.metin.split('\n').filter((l) => l.trim().length);
     const dizi = lines.length ? lines : [''];
     const n = dizi.length;
-    const padY = H * 0.18;
+    const padY = H * 0.30; // daha fazla dikey boşluk → yazı mekana göre daha küçük
     const lineH = (H - padY * 2) / Math.max(n, 1);
     let fontPx = lineH / 1.35;
     x.font = `${fontPx}px "${design.font}", cursive`;
     let boxW = 0; dizi.forEach((l) => { boxW = Math.max(boxW, x.measureText(l || 'X').width); });
-    const izin = W * 0.82;
+    const izin = W * 0.62; // genişlikte de daha küçük
     if (boxW > izin) { fontPx *= izin / boxW; boxW = izin; }
 
     const cx = W / 2 + design.pozX * W;
