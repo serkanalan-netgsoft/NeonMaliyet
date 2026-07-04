@@ -6,8 +6,15 @@ const CUR_LABEL = { USD: '$', EUR: '€', TL: '₺' };
 const getIn = (obj, path) => path.reduce((o, k) => (o == null ? undefined : o[k]), obj);
 
 export default function SettingsPage({ ayarlar }) {
-  const { rates, setRate, materials, setMaterialBase, prices, constants, setConstant, sifirla } = ayarlar;
+  const { rates, setRate, materials, setMaterialBase, addMaterial, removeMaterial, prices, constants, setConstant, sifirla } = ayarlar;
   const [ara, setAra] = useState('');
+  const [yeni, setYeni] = useState({ ad: '', base: '', cur: 'TL' });
+
+  const yeniEkle = () => {
+    if (!yeni.ad.trim()) return;
+    addMaterial(yeni.ad.trim(), yeni.base, yeni.cur);
+    setYeni({ ad: '', base: '', cur: 'TL' });
+  };
 
   const gruplar = useMemo(() => {
     const g = {};
@@ -52,6 +59,20 @@ export default function SettingsPage({ ayarlar }) {
       </Section>
 
       <Section title="Malzeme Baz Fiyatları">
+        <div className="yeni-malzeme">
+          <input placeholder="Yeni malzeme adı" value={yeni.ad}
+            onChange={(e) => setYeni({ ...yeni, ad: e.target.value })} />
+          <input type="number" step="0.0001" placeholder="Baz fiyat" value={yeni.base}
+            onChange={(e) => setYeni({ ...yeni, base: e.target.value })} />
+          <select value={yeni.cur} onChange={(e) => setYeni({ ...yeni, cur: e.target.value })}>
+            <option value="TL">₺ TL</option>
+            <option value="USD">$ USD</option>
+            <option value="EUR">€ EUR</option>
+          </select>
+          <button className="btn-add" onClick={yeniEkle}>+ Malzeme Ekle</button>
+        </div>
+        <p className="hint">Eklediğiniz özel malzemeler ürün ekranlarındaki "Ek Kalem → Malzeme" listesinde çıkar.</p>
+
         <input className="search" placeholder="Malzeme ara…" value={ara} onChange={(e) => setAra(e.target.value)} />
         {Object.entries(gruplar).map(([grup, list]) => (
           <div className="mat-group" key={grup}>
@@ -61,12 +82,15 @@ export default function SettingsPage({ ayarlar }) {
                 <span>Malzeme</span><span>Baz</span><span>Birim</span><span>KDV'li TL</span>
               </div>
               {list.map(([key, m]) => (
-                <div className="mat-row" key={key}>
-                  <span className="mat-ad">{m.ad}</span>
+                <div className={`mat-row ${m.ozel ? 'ozel' : ''}`} key={key}>
+                  <span className="mat-ad">{m.ozel && <em className="ozel-tag">özel</em>} {m.ad}</span>
                   <input type="number" step="0.0001" value={m.base}
                     onChange={(e) => setMaterialBase(key, e.target.value === '' ? 0 : parseFloat(e.target.value))} />
                   <span className="mat-cur">{CUR_LABEL[m.cur]}</span>
-                  <span className="mat-price">{fmt(prices[key])} ₺</span>
+                  <span className="mat-price">
+                    {fmt(prices[key])} ₺
+                    {m.ozel && <button className="mat-sil" title="Sil" onClick={() => removeMaterial(key)}>✕</button>}
+                  </span>
                 </div>
               ))}
             </div>

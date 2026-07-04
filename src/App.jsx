@@ -17,7 +17,7 @@ const SEKMELER = [
 export default function App() {
   const [sekme, setSekme] = useState('tabela');
   const ayarlar = useAyarlar();
-  const ortak = { prices: ayarlar.prices, constants: ayarlar.constants, rates: ayarlar.rates };
+  const ortak = { prices: ayarlar.prices, constants: ayarlar.constants, rates: ayarlar.rates, materials: ayarlar.materials };
 
   return (
     <div className="app">

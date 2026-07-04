@@ -45,19 +45,34 @@ export function useAyarlar() {
     const s = saved?.materials || {};
     const merged = {};
     for (const [k, v] of Object.entries(defaultMaterials)) merged[k] = { ...v, ...(s[k] || {}) };
+    // Kayıtlı özel (kullanıcı tanımlı) malzemeleri ekle
+    for (const [k, v] of Object.entries(s)) if (!(k in defaultMaterials) && v && v.ozel) merged[k] = { ...v };
     return merged;
   });
   const [constants, setConstants] = useState(() => deepMerge(defaultConstants, saved?.constants));
 
   useEffect(() => {
-    const matBase = {};
-    for (const [k, v] of Object.entries(materials)) matBase[k] = { base: v.base, cur: v.cur };
-    localStorage.setItem(LS_KEY, JSON.stringify({ rates, materials: matBase, constants }));
+    const matStore = {};
+    for (const [k, v] of Object.entries(materials)) {
+      matStore[k] = v.ozel
+        ? { base: v.base, cur: v.cur, ad: v.ad, grup: v.grup, ozel: true }
+        : { base: v.base, cur: v.cur };
+    }
+    localStorage.setItem(LS_KEY, JSON.stringify({ rates, materials: matStore, constants }));
   }, [rates, materials, constants]);
 
   const setRate = useCallback((key, val) => setRates((r) => ({ ...r, [key]: val })), []);
   const setMaterialBase = useCallback((key, base) =>
     setMaterials((m) => ({ ...m, [key]: { ...m[key], base } })), []);
+  // Özel (kullanıcı tanımlı) malzeme ekle
+  const addMaterial = useCallback((ad, base, cur) => {
+    const key = 'ozel_' + Date.now();
+    setMaterials((m) => ({ ...m, [key]: { ad: ad || 'Yeni Malzeme', base: Number(base) || 0, cur: cur || 'TL', grup: 'Özel Malzemeler', ozel: true } }));
+  }, []);
+  // Özel malzeme sil (sadece ozel olanlar silinebilir)
+  const removeMaterial = useCallback((key) => {
+    setMaterials((m) => { if (!m[key]?.ozel) return m; const { [key]: _, ...rest } = m; return rest; });
+  }, []);
   const setConstant = useCallback((path, val) =>
     setConstants((c) => setIn(c, path, val)), []);
 
@@ -71,5 +86,5 @@ export function useAyarlar() {
 
   const prices = computePrices(rates, materials);
 
-  return { rates, setRate, materials, setMaterialBase, prices, constants, setConstant, sifirla };
+  return { rates, setRate, materials, setMaterialBase, addMaterial, removeMaterial, prices, constants, setConstant, sifirla };
 }

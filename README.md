@@ -17,6 +17,14 @@ npm run build     # dağıtım için (dist/ klasörü)
 npm run verify    # motoru Excel değerlerine karşı test et
 ```
 
+## Özellikler
+- 4 ürün için maliyet & satış fiyatı hesabı (Excel'e karşı birebir doğrulanmış motor)
+- LED uzunluğundan otomatik amper → adaptör seçimi
+- **Ayarlar'da düzenlenebilir:** kurlar, KDV, kar oranı, tüm malzeme fiyatları ve tüm katsayılar
+- **Ek Maliyet Kalemleri:** her hesaba özel ekstra satır (ad + miktar × birim fiyat)
+- **Özel Malzeme tanımlama:** Ayarlar'dan yeni malzeme ekleyip ürünlerde seçme
+- Değerler tarayıcıda (localStorage) saklanır
+
 ## Nasıl çalışır?
 - **Fiyat zinciri:** `baz fiyat × kur × KDV`. Malzemeler USD, EUR veya TL endeksli.
   Kur değişince tüm ürün fiyatları otomatik güncellenir (Excel'deki gibi).

@@ -6,11 +6,14 @@ import {
   CerceveBlock, KumandaBlock, AdaptorBlock, PaketBlock,
 } from '../components/CommonFields.jsx';
 import Result from '../components/Result.jsx';
+import EkKalemler from '../components/EkKalemler.jsx';
+import { birlestir } from '../engine/ekKalem.js';
 
-export default function NeonTabelaPage({ prices, constants, rates }) {
+export default function NeonTabelaPage({ prices, constants, rates, materials }) {
   const [inp, setInp] = useState(defaultInputs);
+  const [ekler, setEkler] = useState([]);
   const set = (patch) => setInp((p) => ({ ...p, ...patch }));
-  const sonuc = hesapla(inp, prices, constants, rates);
+  const sonuc = birlestir(hesapla(inp, prices, constants, rates), ekler, prices, rates.karOrani);
 
   return (
     <div className="calc">
@@ -40,6 +43,7 @@ export default function NeonTabelaPage({ prices, constants, rates }) {
           </div>
         </Section>
         <PaketBlock inp={inp} set={set} />
+        <EkKalemler kalemler={ekler} onChange={setEkler} materials={materials} prices={prices} />
       </div>
       <div className="output">
         <Result sonuc={sonuc} karOrani={rates.karOrani} urunAdi="Neon Tabela" />

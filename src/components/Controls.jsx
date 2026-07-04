@@ -3,9 +3,9 @@ import React from 'react';
 
 export const fmt = (n) => (n ?? 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export function Section({ title, children }) {
+export function Section({ title, children, className = '' }) {
   return (
-    <fieldset className="section">
+    <fieldset className={`section ${className}`}>
       <legend>{title}</legend>
       <div className="section-body">{children}</div>
     </fieldset>

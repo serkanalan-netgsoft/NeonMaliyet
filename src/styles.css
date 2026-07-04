@@ -184,6 +184,43 @@ body {
 .mat-cur { color: var(--muted); text-align: center; }
 .mat-price { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--neon); text-align: right; font-size: 13px; }
 
+/* ---- Ek Kalemler ---- */
+.section.full { grid-column: 1 / -1; }
+.ek-row {
+  display: grid; grid-template-columns: 90px minmax(160px, 2fr) 90px 14px 120px 110px 30px;
+  align-items: center; gap: 8px; margin-bottom: 7px;
+}
+.ek-row select, .ek-row input {
+  background: var(--bg-2); border: 1px solid var(--line); color: var(--text);
+  border-radius: 7px; padding: 7px 8px; font-size: 12.5px; width: 100%; outline: none;
+}
+.ek-row select:focus, .ek-row input:focus { border-color: var(--neon-2); }
+.ek-carpi { color: var(--muted); text-align: center; }
+.ek-birim { font-size: 12px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.ek-tutar { font-size: 12.5px; font-weight: 700; color: var(--neon); text-align: right; font-variant-numeric: tabular-nums; }
+.ek-sil { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 4px; }
+.ek-sil:hover { color: var(--pink); }
+.ek-ekle {
+  margin-top: 4px; background: rgba(34,227,195,0.08); border: 1px dashed var(--neon);
+  color: var(--neon); padding: 8px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; width: 100%;
+}
+.ek-ekle:hover { background: rgba(34,227,195,0.16); }
+
+/* ---- Yeni malzeme formu ---- */
+.yeni-malzeme { display: grid; grid-template-columns: 1fr 110px 90px auto; gap: 8px; margin-bottom: 8px; }
+.yeni-malzeme input, .yeni-malzeme select {
+  background: var(--bg-2); border: 1px solid var(--line); color: var(--text);
+  border-radius: 8px; padding: 9px 11px; font-size: 13px; outline: none;
+}
+.yeni-malzeme input:focus, .yeni-malzeme select:focus { border-color: var(--neon-2); }
+.btn-add { background: var(--neon); border: none; color: #06231e; font-weight: 700; border-radius: 8px; padding: 0 14px; cursor: pointer; font-size: 13px; }
+.btn-add:hover { filter: brightness(1.1); }
+.mat-row.ozel .mat-ad { color: var(--gold); }
+.ozel-tag { font-style: normal; font-size: 9px; background: var(--gold); color: #2a1e00; border-radius: 4px; padding: 1px 5px; margin-right: 4px; vertical-align: middle; font-weight: 700; }
+.mat-price { position: relative; }
+.mat-sil { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 12px; margin-left: 6px; }
+.mat-sil:hover { color: var(--pink); }
+
 /* ---- Footer ---- */
 .foot {
   text-align: center; padding: 16px; font-size: 11.5px; color: var(--muted);
