@@ -340,8 +340,10 @@ body {
   position: relative; width: 100%; border-radius: 14px; overflow: hidden;
   border: 1px solid var(--line); background: #07080f; box-shadow: 0 16px 40px rgba(0,0,0,0.4);
 }
-.neon-canvas { display: block; width: 100%; height: auto; }
+.neon-canvas { display: block; width: 100%; height: auto; cursor: grab; touch-action: none; }
+.neon-canvas:active { cursor: grabbing; }
 .onizleme-not { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; }
+.onizleme-ipucu { position: absolute; left: 10px; bottom: 8px; font-size: 11px; color: rgba(255,255,255,0.55); background: rgba(0,0,0,0.35); padding: 3px 8px; border-radius: 6px; pointer-events: none; }
 .metin-alan {
   width: 100%; resize: vertical; background: var(--bg-2); border: 1px solid var(--line); color: var(--text);
   border-radius: 8px; padding: 10px 12px; font-size: 18px; outline: none; font-family: inherit;

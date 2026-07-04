@@ -18,7 +18,9 @@ export function tasarimGirdi(design, olcum, C) {
   const maxGenislikCm = Math.max(0, ...genislikler);
   const toplamGenislikCm = genislikler.reduce((a, b) => a + b, 0);
   const satirSayisi = genislikler.length;
-  const toplamYukseklikCm = satirSayisi * olcum.harfYuksekligiCm * C.tasarimSatirAralik;
+  const toplamYukseklikCm = olcum.yukseklikCm != null
+    ? olcum.yukseklikCm
+    : satirSayisi * olcum.harfYuksekligiCm * C.tasarimSatirAralik;
 
   // LED uzunluğu (cm): otomatik = toplam metin genişliği × yoğunluk; manuel override öncelikli
   const ledCmAuto = Math.round(toplamGenislikCm * C.tasarimYogunluk);
