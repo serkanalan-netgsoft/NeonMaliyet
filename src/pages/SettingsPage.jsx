@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { Section, Num, fmt } from '../components/Controls.jsx';
+import { KATSAYI_META } from '../data/pricing.js';
 
 const CUR_LABEL = { USD: '$', EUR: '€', TL: '₺' };
+const getIn = (obj, path) => path.reduce((o, k) => (o == null ? undefined : o[k]), obj);
 
 export default function SettingsPage({ ayarlar }) {
-  const { rates, setRate, materials, setMaterialBase, prices, sifirla } = ayarlar;
+  const { rates, setRate, materials, setMaterialBase, prices, constants, setConstant, sifirla } = ayarlar;
   const [ara, setAra] = useState('');
 
-  // Malzemeleri gruplara ayır
   const gruplar = useMemo(() => {
     const g = {};
     for (const [key, m] of Object.entries(materials)) {
@@ -27,7 +28,27 @@ export default function SettingsPage({ ayarlar }) {
           <Num label="Kar Oranı (Satış = Maliyet ×)" value={rates.karOrani} onChange={(v) => setRate('karOrani', v)} step={0.1} />
         </div>
         <p className="hint">Bir malzemenin fiyatı: <b>baz fiyat × kur × KDV</b>. Kur değişince tüm ürünler otomatik güncellenir.</p>
-        <button className="btn-reset" onClick={sifirla}>↺ Varsayılan Değerlere Dön</button>
+        <button className="btn-reset" onClick={sifirla}>↺ Tüm Ayarları Varsayılana Döndür</button>
+      </Section>
+
+      <Section title="Katsayılar & Sabit Değişkenler">
+        <p className="hint">Excel'deki tüm hesap katsayıları. Değiştirdiğinizde ilgili ürün maliyetleri anında güncellenir.</p>
+        {KATSAYI_META.map((grup) => (
+          <div className="mat-group" key={grup.grup}>
+            <h4>{grup.grup}</h4>
+            <div className="katsayi-grid">
+              {grup.items.map((it) => (
+                <Num
+                  key={it.path.join('.')}
+                  label={it.label}
+                  value={getIn(constants, it.path)}
+                  step={0.01}
+                  onChange={(v) => setConstant(it.path, v)}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
       </Section>
 
       <Section title="Malzeme Baz Fiyatları">

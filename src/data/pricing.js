@@ -221,6 +221,124 @@ export const defaultConstants = {
   avizePaketYuk: 0.1,  // C368
 };
 
+// --- Ayarlar ekranında düzenlenebilir katsayılar (etiket + nesne yolu) ---
+// path: constants içindeki konum. Diziler için indeks, iç içe için çoklu anahtar.
+export const KATSAYI_META = [
+  { grup: 'Genel', items: [
+    { path: ['fireOrani'], label: 'Pleksi/Dekota fire çarpanı' },      // C260
+    { path: ['yapistiriciOran'], label: 'Yapıştırıcı oranı (kutunun 1/x)' }, // C266
+    { path: ['lazerSure'], label: '1 pleksi lazer kesim süresi (dk)' }, // C261
+    { path: ['lazerDk'], label: 'Saat→dk çevrim' },                     // C262
+  ]},
+  { grup: 'Lehim', items: [
+    { path: ['lehimRulo'], label: '1 ruloda lehim adedi' },   // C263
+    { path: ['lehimHarf'], label: '1 harf = kaç lehim' },     // C264
+    { path: ['lehimCizgi'], label: '1 çizgi = kaç lehim' },   // C265
+  ]},
+  { grup: 'Kablo Uzunlukları (m)', items: [
+    { path: ['kabloOnTabela'], label: 'Ön kablo — Tabela' },        // C267
+    { path: ['kabloArkaTabela'], label: 'Arka kablo — Tabela' },    // C268
+    { path: ['kabloOnSonsuzluk'], label: 'Ön kablo — Sonsuzluk' },  // C269
+    { path: ['kabloArkaSonsuzluk'], label: 'Arka kablo — Sonsuzluk' }, // C270
+    { path: ['kabloOnMasa'], label: 'Ön kablo — Masa' },            // C271
+    { path: ['kabloArkaMasa'], label: 'Arka kablo — Masa' },        // C272
+    { path: ['kabloOnAvize'], label: 'Ön kablo — Avize' },          // C273
+    { path: ['kabloArkaAvize'], label: 'Arka kablo — Avize' },      // C274
+    { path: ['fisliKablo'], label: '220V-Adaptör arası fişli kablo' }, // C275
+  ]},
+  { grup: 'Amper Katsayıları', items: [
+    { path: ['amperNeon'], label: 'Neon amper çarpanı' },    // C277
+    { path: ['amperRgb'], label: 'RGB amper çarpanı' },      // C278
+    { path: ['amperPixel'], label: 'Pixel amper çarpanı' },  // C279
+    { path: ['amperBolen'], label: 'cm→m amper bölen' },     // C284
+  ]},
+  { grup: 'İç Mekan Adaptör — Amper Eşikleri', items: [
+    { path: ['icAdapter', 0], label: '5A adaptör eşiği' },      // C285
+    { path: ['icAdapter', 1], label: '12,5A adaptör eşiği' },   // C286
+    { path: ['icAdapter', 2], label: '17A adaptör eşiği' },     // C287
+    { path: ['icAdapter', 3], label: '21A adaptör eşiği' },     // C288
+    { path: ['icAdapter', 4], label: '30A adaptör eşiği' },     // C289
+    { path: ['icAdapter', 5], label: '60A adaptör eşiği' },     // C290
+  ]},
+  { grup: 'Dış Mekan Adaptör — Amper Eşikleri', items: [
+    { path: ['disAdapter', 0], label: '3A adaptör eşiği' },     // C291
+    { path: ['disAdapter', 1], label: '5A adaptör eşiği' },     // C292
+    { path: ['disAdapter', 2], label: '8,3A adaptör eşiği' },   // C293 (düzeltildi)
+    { path: ['disAdapter', 3], label: '12,5A adaptör eşiği' },  // C294
+    { path: ['disAdapter', 4], label: '16,5A adaptör eşiği' },  // C295
+    { path: ['disAdapter', 5], label: '20A adaptör eşiği' },    // C296
+    { path: ['disAdapter', 6], label: '25A adaptör eşiği' },    // C297
+    { path: ['disAdapter', 7], label: '30,3A adaptör eşiği' },  // C298
+  ]},
+  { grup: 'Kumanda — Amper Eşikleri', items: [
+    { path: ['kumanda11Tus', 0], label: '11 Tuş — 12A eşiği' }, // C299
+    { path: ['kumanda11Tus', 1], label: '11 Tuş — 36A eşiği' }, // C300
+    { path: ['kumandaRgb', 0], label: 'RGB — 18A eşiği' },      // C301
+    { path: ['kumandaRgb', 1], label: 'RGB — 36A eşiği' },      // C302
+    { path: ['kumandaPixel'], label: 'Pixel kumanda eşiği' },   // C303
+  ]},
+  { grup: 'Neon Masa', items: [
+    { path: ['masaCubukBoy'], label: 'Çubuk boyu (m)' },       // C281
+    { path: ['masaCubukLed'], label: 'Çubukta led (cm)' },     // C282
+    { path: ['masaCubukSira'], label: 'Led sıra sayısı' },     // C283
+  ]},
+  { grup: 'Open Box / Pleksi Kutu', items: [
+    { path: ['openBoxVida'], label: 'Open box vida adedi' },       // C304
+    { path: ['pleksiKutuYuk'], label: 'Pleksi kutu yüksekliği (m)' }, // C305
+  ]},
+  { grup: 'Kargo & Fire', items: [
+    { path: ['patPatKat'], label: 'Balonlu naylon kat çarpanı' }, // C342
+    { path: ['kartonFire'], label: 'Karton panel fire' },         // C343
+    { path: ['petekFire'], label: 'Petek panel fire' },           // C344
+  ]},
+  { grup: 'Paket Kutu Payları — En / Boy / Yükseklik (m)', items: [
+    { path: ['paket', 'tabela', 0], label: 'Tabela En' }, { path: ['paket', 'tabela', 1], label: 'Tabela Boy' }, { path: ['paket', 'tabela', 2], label: 'Tabela Yük.' },
+    { path: ['paket', 'openBox', 0], label: 'Open Box En' }, { path: ['paket', 'openBox', 1], label: 'Open Box Boy' }, { path: ['paket', 'openBox', 2], label: 'Open Box Yük.' },
+    { path: ['paket', 'pleksiKutu', 0], label: 'Pleksi Kutu En' }, { path: ['paket', 'pleksiKutu', 1], label: 'Pleksi Kutu Boy' }, { path: ['paket', 'pleksiKutu', 2], label: 'Pleksi Kutu Yük.' },
+    { path: ['paket', 'tablo', 0], label: 'Tablo En' }, { path: ['paket', 'tablo', 1], label: 'Tablo Boy' }, { path: ['paket', 'tablo', 2], label: 'Tablo Yük.' },
+    { path: ['paket', 'selfie', 0], label: 'Selfie En' }, { path: ['paket', 'selfie', 1], label: 'Selfie Boy' }, { path: ['paket', 'selfie', 2], label: 'Selfie Yük.' },
+    { path: ['paket', 'sonsuzluk', 0], label: 'Sonsuzluk En' }, { path: ['paket', 'sonsuzluk', 1], label: 'Sonsuzluk Boy' }, { path: ['paket', 'sonsuzluk', 2], label: 'Sonsuzluk Yük.' },
+    { path: ['paket', 'masa', 0], label: 'Masa En' }, { path: ['paket', 'masa', 1], label: 'Masa Boy' }, { path: ['paket', 'masa', 2], label: 'Masa Yük.' },
+  ]},
+  { grup: 'Tablo & Çerçeve Payları (m)', items: [
+    { path: ['tabloEnPay'], label: 'Tablo çerçeve en payı' },     // C345
+    { path: ['tabloBoyPay'], label: 'Tablo çerçeve boy payı' },   // C346
+    { path: ['cerceveEnFire'], label: 'Çerçeve en fire' },        // C353
+    { path: ['cerceveBoyFire'], label: 'Çerçeve boy fire' },      // C354
+    { path: ['yukseklik', 0], label: 'Ürün yükseklik — Tabela' },     // C347
+    { path: ['yukseklik', 1], label: 'Ürün yükseklik — Open Box' },   // C348
+    { path: ['yukseklik', 2], label: 'Ürün yükseklik — Pleksi Kutu' },// C349
+    { path: ['yukseklik', 3], label: 'Ürün yükseklik — Tablo' },      // C350
+    { path: ['yukseklik', 4], label: 'Ürün yükseklik — Selfie' },     // C351
+  ]},
+  { grup: 'Sonsuzluk Desen & Kasa', items: [
+    { path: ['amperDuz'], label: 'Düz çizgi amper çarpanı' },     // C317
+    { path: ['amperZigZag'], label: 'Zig zag amper çarpanı' },    // C318
+    { path: ['amperDalgali'], label: 'Dalgalı amper çarpanı' },   // C319
+    { path: ['sonsuzlukKasaKat'], label: 'Kasa m² katı (alt+kapak)' }, // C352
+    { path: ['desenBosluk'], label: 'Özel desen arası boşluk (m)' },   // C320
+  ]},
+  { grup: 'Avize', items: [
+    { path: ['avizePleksiKapak'], label: 'Şeffaf pleksi kapak (m²)' }, // C356
+    { path: ['avizePaketEn'], label: 'Paket en payı (m)' },   // C366
+    { path: ['avizePaketBoy'], label: 'Paket boy payı (m)' }, // C367
+    { path: ['avizePaketYuk'], label: 'Paket yükseklik payı (m)' }, // C368
+    { path: ['avizeCap', 0], label: 'Çap — 60cm (m)' }, { path: ['avizeCap', 1], label: 'Çap — 80cm (m)' },
+    { path: ['avizeCap', 2], label: 'Çap — 90cm (m)' }, { path: ['avizeCap', 3], label: 'Çap — 100cm (m)' },
+    { path: ['avizeCap', 4], label: 'Çap — 120cm (m)' }, { path: ['avizeCap', 5], label: 'Çap — 130cm (m)' },
+    { path: ['avizeCap', 6], label: 'Çap — 150cm (m)' }, { path: ['avizeCap', 7], label: 'Çap — 160cm (m)' },
+    { path: ['avizeCap', 8], label: 'Çap — 190cm (m)' },
+  ]},
+  { grup: 'Yüzey / Ayna / Cam Payları (m)', items: [
+    { path: ['aynaEnPay'], label: 'Ayna en payı' },        // C306
+    { path: ['aynaBoyPay'], label: 'Ayna boy payı' },      // C307
+    { path: ['dalgaliEnPay'], label: 'Dalgalı ayna en payı' },  // C308
+    { path: ['dalgaliBoyPay'], label: 'Dalgalı ayna boy payı' },// C309
+    { path: ['camFilmiPay1'], label: 'Cam filmi payı 1' }, // C312
+    { path: ['camFilmiPay2'], label: 'Cam filmi payı 2' }, // C313
+  ]},
+];
+
 // ---------------------------------------------------------------------------
 // computePrices(rates, materials) → { key: KDV'li TL fiyat }
 //   Excel'deki "I" sütunu değerlerini üretir.

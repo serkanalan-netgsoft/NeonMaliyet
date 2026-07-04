@@ -173,6 +173,7 @@ body {
 .btn-reset:hover { color: var(--pink); border-color: var(--pink); }
 .search { margin-bottom: 6px; }
 .mat-group h4 { margin: 16px 0 8px; font-size: 13px; color: var(--neon-2); }
+.katsayi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
 .mat-table { display: flex; flex-direction: column; }
 .mat-head, .mat-row {
   display: grid; grid-template-columns: 1fr 110px 44px 130px; gap: 10px; align-items: center;
